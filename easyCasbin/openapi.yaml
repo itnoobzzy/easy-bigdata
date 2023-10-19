@@ -1,0 +1,96 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: User API
+    description: 用户相关接口
+    version: 0.0.1
+paths:
+    /easyCasbin/api/v1/user:
+        post:
+            tags:
+                - User
+            description: 创建用户
+            operationId: User_CreateUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.user.v1.CreateUserInfo'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.user.v1.UserInfoResponse'
+    /easyCasbin/api/v1/users:
+        get:
+            tags:
+                - User
+            description: 获取用户列表
+            operationId: User_GetUserList
+            parameters:
+                - name: pn
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.user.v1.UserListResponse'
+components:
+    schemas:
+        api.user.v1.CreateUserInfo:
+            type: object
+            properties:
+                nickName:
+                    type: string
+                password:
+                    type: string
+                mobile:
+                    type: string
+            description: 创建用户
+        api.user.v1.UserInfoResponse:
+            type: object
+            properties:
+                id:
+                    type: string
+                password:
+                    type: string
+                mobile:
+                    type: string
+                nickName:
+                    type: string
+                birthday:
+                    type: string
+                gender:
+                    type: string
+                role:
+                    type: integer
+                    format: int32
+            description: 用户信息
+        api.user.v1.UserListResponse:
+            type: object
+            properties:
+                total:
+                    type: integer
+                    format: int32
+                data:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.user.v1.UserInfoResponse'
+            description: 用户列表
+tags:
+    - name: User

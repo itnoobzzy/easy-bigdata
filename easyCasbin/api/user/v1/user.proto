@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package api.user.v1;
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "validate/validate.proto";
+import "errors/errors.proto";
+
+option go_package = "easyCasbin/api/user/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.user.v1";
+
+enum UserError {
+	// 设置缺省错误码
+	option (errors.default_code) = 500;
+
+	// 内部错误
+	INTERNAL_ERR = 0 [(errors.code) = 500];
+	// 用户不存在
+	USER_NOT_FOUND = 1 [(errors.code) = 404];
+	// 参数确实
+	CONTENT_MISSING = 2 [(errors.code) = 400];
+	// 用户已存在
+	USER_EXIST = 3 [(errors.code) = 409];
+}
+
+// 用户相关接口
+service User {
+	// 获取用户列表
+	rpc GetUserList(PageInfo) returns (UserListResponse){
+		option (google.api.http) = {
+			get: "/easyCasbin/api/v1/users"
+		};
+	};
+	rpc GetUserByMobile(MobileRequest) returns (UserInfoResponse){}; // 通过 mobile 查询用户
+	rpc GetUserById(IdRequest) returns (UserInfoResponse){}; // 通过 Id 查询用户
+	// 创建用户
+	rpc CreateUser(CreateUserInfo) returns (UserInfoResponse){
+		option (google.api.http) = {
+			post: "/easyCasbin/api/v1/user"
+			body: "*"
+		};
+	};
+	rpc UpdateUser(UpdateUserInfo) returns (google.protobuf.Empty){}; // 更新用户
+	rpc CheckPassword(PasswordCheckInfo) returns (CheckResponse){}; // 检查用户密码
+}
+
+// 分页
+message PageInfo{
+	int32 pn = 1[(validate.rules).int32 = {gt: 0}];
+	int32 pSize = 2;
+}
+
+// 用户信息
+message UserInfoResponse{
+	int64 id = 1;
+	string password = 2;
+	string mobile = 3;
+	string nickName = 4;
+	uint64 birthday = 5;
+	string gender = 6;
+	int32 role = 7;
+}
+
+// 用户列表
+message UserListResponse{
+	int32 total = 1;
+	repeated UserInfoResponse data = 2;
+}
+
+message MobileRequest{
+	string mobile = 1;
+}
+
+message IdRequest{
+	int64 id = 1;
+}
+
+// 创建用户
+message  CreateUserInfo{
+	string nickName = 1;
+	string password = 2;
+	string mobile = 3;
+}
+
+message  UpdateUserInfo{
+	int64 id = 1;
+	string nickName = 2;
+	string gender = 3;
+	uint64 birthday = 4;
+}
+
+message PasswordCheckInfo{
+	string password = 1;
+	string encryptedPassword = 2;
+}
+
+message CheckResponse{
+	bool success = 1;
+}
+

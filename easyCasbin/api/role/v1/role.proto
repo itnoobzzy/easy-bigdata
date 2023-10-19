@@ -1,0 +1,136 @@
+syntax = "proto3";
+
+package api.role.v1;
+
+import "validate/validate.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "easyCasbin/api/role/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.role.v1";
+
+service DomainRole {
+	// 添加域角色
+	rpc AddDomainRole(AddDomainRoleReq) returns (AddDomainRoleRpl);
+	// 更新域角色信息
+	rpc UpdateRoleInfo(UpdateDomainRoleReq) returns (UpdateDomainRoleRpl);
+	// DeleteRole 删除对应域的角色
+	rpc DeleteRole(DeleteDomainRoleReq) returns (DeleteDomainRoleRpl);
+	// GetDomainRoles 获取指定域下所有角色
+	rpc GetDomainRoles(GetAllRolesReq) returns (GetAllRolesRpl);
+	// GetDomainSubsForRole 获取指定域角色下所有用户
+	rpc GetDomainSubsForRole(GetDomainSubsForRoleReq) returns (GetDomainSubsForRoleRpl);
+	// AddRoleForSubInDomain 为用户添加域角色或者为角色继承另一个角色权限
+	rpc AddRoleForSubInDomain(AddRoleForSubInDomainReq) returns (AddRoleForSubInDomainRpl);
+	// DeleteRoleForSubInDomain 删除角色下subject（鉴权主体）
+	rpc DeleteRoleForSubInDomain(DeleteRoleForSubInDomainReq) returns (DeleteRoleForSubInDomainRpl);
+}
+
+
+message AddDomainRoleReq {
+	string domainName = 1 [(validate.rules).string.pattern="^[0-9a-zA-Z_]{1,}$"];
+	string roleName = 2 [(validate.rules).string.pattern="^[0-9a-zA-Z_]{1,}$"];
+}
+
+message AddDomainRoleRpl {
+	message Data {
+		int64 id = 1;
+		google.protobuf.Timestamp creatTime = 2;
+		string name = 3;
+		string domain = 4;
+	}
+	uint32 code = 1;
+	string msg = 2;
+	Data data = 3;
+}
+
+message UpdateDomainRoleReq {
+	string domainName = 1 [(validate.rules).string.pattern="^[0-9a-zA-Z_]{1,}$"];
+	string roleName = 2 [(validate.rules).string.pattern="^[0-9a-zA-Z_]{1,}$"];
+	string newRoleName = 3 [(validate.rules).string.pattern="^[0-9a-zA-Z_]{1,}$"];
+}
+
+message UpdateDomainRoleRpl {
+	message Data {
+		int64 id = 1;
+		google.protobuf.Timestamp updateTime = 2;
+		string name = 3;
+		string domain = 4;
+	}
+	uint32 code = 1;
+	string msg = 2;
+	Data data = 3;
+}
+
+message DeleteDomainRoleReq {
+	string domainName = 1 [(validate.rules).string.pattern="^[0-9a-zA-Z_]{1,}$"];
+	string roleName = 2 [(validate.rules).string.pattern="^[0-9a-zA-Z_]{1,}$"];
+}
+
+message DeleteDomainRoleRpl {
+	message Data {
+		google.protobuf.Timestamp deleteTime = 1;
+	}
+	uint32 code = 1;
+	string msg = 2;
+	Data data = 3;
+}
+
+message GetAllRolesReq {
+	string domainName = 1 [(validate.rules).string.pattern="^[0-9a-zA-Z_]{1,}$"];
+}
+
+message GetAllRolesRpl {
+	message Data {
+		int64 id = 1;
+		google.protobuf.Timestamp createTime = 2;
+		google.protobuf.Timestamp updateTime = 3;
+		string name = 4;
+		string domain = 5;
+	}
+	uint32 code = 1;
+	string msg = 2;
+	repeated Data data = 3;
+}
+
+message AddRoleForSubInDomainReq {
+	// eg: user:zhouzy1 or role:admin
+	string sub = 1 [(validate.rules).string.pattern="^(.*):(.*)$"];
+	// eg: domain:domain1
+	string domain = 2 [(validate.rules).string.pattern="^(.*):(.*)$"];
+	// eg: role:common
+	string role = 3 [(validate.rules).string.pattern="^(.*):(.*)$"];
+}
+
+message AddRoleForSubInDomainRpl {
+	uint32 code = 1;
+	string msg = 2;
+}
+
+message GetDomainSubsForRoleReq {
+	string domainName = 1 [(validate.rules).string.pattern="^[0-9a-zA-Z_]{1,}$"];
+	string roleName = 2 [(validate.rules).string.pattern="^[0-9a-zA-Z_]{1,}$"];
+}
+
+message GetDomainSubsForRoleRpl {
+	message Data {
+		string sub = 1;
+	}
+	uint32 code = 1;
+	string msg = 2;
+	repeated Data data = 3;
+}
+
+message DeleteRoleForSubInDomainReq {
+	// eg: user:zhouzy1 or role:admin
+	string sub = 1 [(validate.rules).string.pattern="^(.*):(.*)$"];
+	// eg: domain:domain1
+	string domain = 2 [(validate.rules).string.pattern="^(.*):(.*)$"];
+	// eg: role:common
+	string role = 3 [(validate.rules).string.pattern="^(.*):(.*)$"];
+}
+
+message DeleteRoleForSubInDomainRpl {
+	uint32 code = 1;
+	string msg = 2;
+}

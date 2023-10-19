@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package db.init;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "easyCasbin/api/db;InitDB";
+option java_multiple_files = true;
+option java_package = "db.init";
+
+service InitDB {
+  rpc InitUserDB(google.protobuf.Empty) returns (InitRpl){
+    option (google.api.http) = {
+      get: "/easyCasbin/initDb/user"
+    };
+  };
+  rpc InitRoleDB(google.protobuf.Empty) returns (InitRpl){
+    option (google.api.http) = {
+      get: "/easyCasbin/initDb/role"
+    };
+  };
+}
+
+message InitRpl{
+  int32  code = 1;
+  string message = 2;
+}
