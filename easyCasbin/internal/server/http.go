@@ -1,9 +1,11 @@
 package server
 
 import (
+	db "easyCasbin/api/db"
 	v1 "easyCasbin/api/user/v1"
 	"easyCasbin/internal/conf"
 	"easyCasbin/internal/service"
+	"github.com/go-kratos/kratos/v2/middleware/logging"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -11,10 +13,12 @@ import (
 )
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Server, us *service.UserService, logger log.Logger) *http.Server {
+func NewHTTPServer(c *conf.Server, us *service.UserService,
+	ds *service.DbIniterService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
+			logging.Server(logger),
 		),
 	}
 	if c.Http.Network != "" {
@@ -28,5 +32,6 @@ func NewHTTPServer(c *conf.Server, us *service.UserService, logger log.Logger) *
 	}
 	srv := http.NewServer(opts...)
 	v1.RegisterUserHTTPServer(srv, us)
+	db.RegisterInitDBHTTPServer(srv, ds)
 	return srv
 }

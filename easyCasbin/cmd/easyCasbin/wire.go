@@ -9,10 +9,8 @@ import (
 	"easyCasbin/internal/biz"
 	"easyCasbin/internal/conf"
 	"easyCasbin/internal/data"
-	"easyCasbin/internal/initialize"
 	"easyCasbin/internal/server"
 	"easyCasbin/internal/service"
-
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
@@ -21,7 +19,6 @@ import (
 // wireApp init kratos application.
 func wireApp(*conf.Server, *conf.Data, log.Logger) (*kratos.App, func(), error) {
 	panic(wire.Build(
-		initialize.ProviderSet,
 		server.ProviderSet,
 		data.ProviderSet,
 		biz.ProviderSet,

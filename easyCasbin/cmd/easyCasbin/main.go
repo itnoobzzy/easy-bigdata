@@ -1,20 +1,19 @@
 package main
 
 import (
+	zlog "easyCasbin/middleware/log"
 	"flag"
 	"os"
-
-	"easyCasbin/internal/conf"
 
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/config"
 	"github.com/go-kratos/kratos/v2/config/file"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
-
 	_ "go.uber.org/automaxprocs"
+
+	"easyCasbin/internal/conf"
 )
 
 // go build -ldflags "-X main.Version=x.y.z"
@@ -49,15 +48,21 @@ func newApp(logger log.Logger, gs *grpc.Server, hs *http.Server) *kratos.App {
 
 func main() {
 	flag.Parse()
-	logger := log.With(log.NewStdLogger(os.Stdout),
-		"ts", log.DefaultTimestamp,
-		"caller", log.DefaultCaller,
-		"service.id", id,
-		"service.name", Name,
-		"service.version", Version,
-		"trace.id", tracing.TraceID(),
-		"span.id", tracing.SpanID(),
-	)
+	//f, err := os.OpenFile("test2.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	//if err != nil {
+	//	return
+	//}
+	////kratos 内置 logger
+	//logger2 := log.With(log.NewStdLogger(f),
+	//	"ts", log.DefaultTimestamp,
+	//	"caller", log.DefaultCaller,
+	//	"service.id", id,
+	//	"service.name", Name,
+	//	"service.version", Version,
+	//	"trace.id", tracing.TraceID(),
+	//	"span.id", tracing.SpanID(),
+	//)
+
 	c := config.New(
 		config.WithSource(
 			file.NewSource(flagconf),
@@ -74,7 +79,11 @@ func main() {
 		panic(err)
 	}
 
-	app, cleanup, err := wireApp(bc.Server, bc.Data, logger)
+	// 使用 zap 日志
+	zl := zlog.NewZapLogger(bc.Log)
+
+	app, cleanup, err := wireApp(bc.Server, bc.Data, zl)
+	//app, cleanup, err := wireApp(bc.Server, bc.Data, logger2)
 	if err != nil {
 		panic(err)
 	}

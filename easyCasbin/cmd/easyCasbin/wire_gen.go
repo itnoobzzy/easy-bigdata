@@ -12,9 +12,12 @@ import (
 	"easyCasbin/internal/data"
 	"easyCasbin/internal/server"
 	"easyCasbin/internal/service"
-
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/log"
+)
+
+import (
+	_ "go.uber.org/automaxprocs"
 )
 
 // Injectors from wire.go:
@@ -31,7 +34,10 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	userUsecase := biz.NewUserUsecase(userRepo, logger)
 	userService := service.NewUserService(userUsecase, logger)
 	grpcServer := server.NewGRPCServer(confServer, userService, logger)
-	httpServer := server.NewHTTPServer(confServer, userService, logger)
+	dbIniterRepo := data.NewDbIniterRepo(dataData, logger)
+	dbIniterUsecase := biz.NewDbiniterUsecase(dbIniterRepo, logger)
+	dbIniterService := service.NewDbIniterService(dbIniterUsecase, logger)
+	httpServer := server.NewHTTPServer(confServer, userService, dbIniterService, logger)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
 		cleanup()
