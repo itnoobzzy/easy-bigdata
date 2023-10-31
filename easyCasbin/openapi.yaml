@@ -3,8 +3,7 @@
 
 openapi: 3.0.3
 info:
-    title: User API
-    description: 用户相关接口
+    title: ""
     version: 0.0.1
 paths:
     /easyCasbin/api/v1/user:
@@ -26,6 +25,41 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.user.v1.UserInfoResponse'
+    /easyCasbin/api/v1/user/login:
+        post:
+            tags:
+                - User
+            description: 登录
+            operationId: User_Login
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.user.v1.LoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.user.v1.LoginRpl'
+    /easyCasbin/api/v1/user/register:
+        post:
+            tags:
+                - User
+            description: 注册
+            operationId: User_RegisterUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.user.v1.RegisterRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
     /easyCasbin/api/v1/users:
         get:
             tags:
@@ -50,6 +84,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.user.v1.UserListResponse'
+    /easyCasbin/initDb/role:
+        get:
+            tags:
+                - InitDB
+            operationId: InitDB_InitRoleDB
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/db.init.InitRpl'
+    /easyCasbin/initDb/user:
+        get:
+            tags:
+                - InitDB
+            operationId: InitDB_InitUserDB
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/db.init.InitRpl'
 components:
     schemas:
         api.user.v1.CreateUserInfo:
@@ -62,24 +120,42 @@ components:
                 mobile:
                     type: string
             description: 创建用户
-        api.user.v1.UserInfoResponse:
+        api.user.v1.LoginRequest:
             type: object
             properties:
-                id:
+                nickName:
+                    type: string
+                password:
+                    type: string
+            description: 登录
+        api.user.v1.LoginRpl:
+            type: object
+            properties:
+                User:
+                    $ref: '#/components/schemas/api.user.v1.UserInfoResponse'
+                Token:
+                    type: string
+                ExpiresAt:
+                    type: string
+        api.user.v1.RegisterRequest:
+            type: object
+            properties:
+                nickName:
                     type: string
                 password:
                     type: string
                 mobile:
                     type: string
+            description: 注册用户
+        api.user.v1.UserInfoResponse:
+            type: object
+            properties:
+                id:
+                    type: string
+                mobile:
+                    type: string
                 nickName:
                     type: string
-                birthday:
-                    type: string
-                gender:
-                    type: string
-                role:
-                    type: integer
-                    format: int32
             description: 用户信息
         api.user.v1.UserListResponse:
             type: object
@@ -92,5 +168,15 @@ components:
                     items:
                         $ref: '#/components/schemas/api.user.v1.UserInfoResponse'
             description: 用户列表
+        db.init.InitRpl:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
 tags:
+    - name: InitDB
     - name: User
+      description: 用户相关接口

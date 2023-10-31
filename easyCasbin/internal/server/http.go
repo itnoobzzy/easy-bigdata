@@ -1,16 +1,34 @@
 package server
 
 import (
-	db "easyCasbin/api/db"
-	v1 "easyCasbin/api/user/v1"
-	"easyCasbin/internal/conf"
-	"easyCasbin/internal/service"
+	"context"
+	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
+	"github.com/go-kratos/kratos/v2/middleware/selector"
+	"github.com/go-kratos/kratos/v2/middleware/validate"
+	jwtv4 "github.com/golang-jwt/jwt/v4"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/transport/http"
+
+	db "easyCasbin/api/db"
+	v1 "easyCasbin/api/user/v1"
+	"easyCasbin/internal/conf"
+	"easyCasbin/internal/service"
 )
+
+func NewWhiteListMatcher() selector.MatchFunc {
+	whiteList := make(map[string]bool)
+	whiteList["/api.user.v1.User/Login"] = true
+	whiteList["/api.user.v1.User/register"] = true
+	return func(ctx context.Context, operation string) bool {
+		if _, ok := whiteList[operation]; ok {
+			return false
+		}
+		return true
+	}
+}
 
 // NewHTTPServer new an HTTP server.
 func NewHTTPServer(c *conf.Server, us *service.UserService,
@@ -19,6 +37,17 @@ func NewHTTPServer(c *conf.Server, us *service.UserService,
 		http.Middleware(
 			recovery.Recovery(),
 			logging.Server(logger),
+			validate.Validator(),
+			selector.Server(
+				jwt.Server(
+					func(token *jwtv4.Token) (interface{}, error) {
+						return []byte(c.Jwt.SigningKey), nil
+					},
+					//jwt.WithClaims(func() jwtv4.Claims {
+					//	return &mjwt.CustomClaims{}
+					//}),
+				),
+			).Match(NewWhiteListMatcher()).Build(),
 		),
 	}
 	if c.Http.Network != "" {

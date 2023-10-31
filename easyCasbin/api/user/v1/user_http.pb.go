@@ -10,6 +10,7 @@ import (
 	context "context"
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -21,18 +22,26 @@ const _ = http.SupportPackageIsVersion1
 
 const OperationUserCreateUser = "/api.user.v1.User/CreateUser"
 const OperationUserGetUserList = "/api.user.v1.User/GetUserList"
+const OperationUserLogin = "/api.user.v1.User/Login"
+const OperationUserRegisterUser = "/api.user.v1.User/RegisterUser"
 
 type UserHTTPServer interface {
 	// CreateUser 创建用户
 	CreateUser(context.Context, *CreateUserInfo) (*UserInfoResponse, error)
 	// GetUserList 获取用户列表
 	GetUserList(context.Context, *PageInfo) (*UserListResponse, error)
+	// Login 登录
+	Login(context.Context, *LoginRequest) (*LoginRpl, error)
+	// RegisterUser 注册
+	RegisterUser(context.Context, *RegisterRequest) (*emptypb.Empty, error)
 }
 
 func RegisterUserHTTPServer(s *http.Server, srv UserHTTPServer) {
 	r := s.Route("/")
 	r.GET("/easyCasbin/api/v1/users", _User_GetUserList0_HTTP_Handler(srv))
 	r.POST("/easyCasbin/api/v1/user", _User_CreateUser0_HTTP_Handler(srv))
+	r.POST("/easyCasbin/api/v1/user/register", _User_RegisterUser0_HTTP_Handler(srv))
+	r.POST("/easyCasbin/api/v1/user/login", _User_Login0_HTTP_Handler(srv))
 }
 
 func _User_GetUserList0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
@@ -76,9 +85,55 @@ func _User_CreateUser0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) e
 	}
 }
 
+func _User_RegisterUser0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RegisterRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationUserRegisterUser)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.RegisterUser(ctx, req.(*RegisterRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*emptypb.Empty)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _User_Login0_HTTP_Handler(srv UserHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in LoginRequest
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationUserLogin)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.Login(ctx, req.(*LoginRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*LoginRpl)
+		return ctx.Result(200, reply)
+	}
+}
+
 type UserHTTPClient interface {
 	CreateUser(ctx context.Context, req *CreateUserInfo, opts ...http.CallOption) (rsp *UserInfoResponse, err error)
 	GetUserList(ctx context.Context, req *PageInfo, opts ...http.CallOption) (rsp *UserListResponse, err error)
+	Login(ctx context.Context, req *LoginRequest, opts ...http.CallOption) (rsp *LoginRpl, err error)
+	RegisterUser(ctx context.Context, req *RegisterRequest, opts ...http.CallOption) (rsp *emptypb.Empty, err error)
 }
 
 type UserHTTPClientImpl struct {
@@ -109,6 +164,32 @@ func (c *UserHTTPClientImpl) GetUserList(ctx context.Context, in *PageInfo, opts
 	opts = append(opts, http.Operation(OperationUserGetUserList))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *UserHTTPClientImpl) Login(ctx context.Context, in *LoginRequest, opts ...http.CallOption) (*LoginRpl, error) {
+	var out LoginRpl
+	pattern := "/easyCasbin/api/v1/user/login"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationUserLogin))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *UserHTTPClientImpl) RegisterUser(ctx context.Context, in *RegisterRequest, opts ...http.CallOption) (*emptypb.Empty, error) {
+	var out emptypb.Empty
+	pattern := "/easyCasbin/api/v1/user/register"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationUserRegisterUser))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

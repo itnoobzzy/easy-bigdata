@@ -22,8 +22,15 @@ message Server {
     string addr = 2;
     google.protobuf.Duration timeout = 3;
   }
+  message JWT {
+    string signing_key = 1;
+    int64 expires_time = 2;
+    int64 buffer_time = 3;
+    string issuer = 4;
+  }
   HTTP http = 1;
   GRPC grpc = 2;
+  JWT  jwt = 3;
 }
 
 message Data {
@@ -68,4 +75,6 @@ message Registry {
   }
   Consul consul = 1;
 }
+
+
 

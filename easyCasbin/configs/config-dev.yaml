@@ -5,6 +5,11 @@ server:
   grpc:
     addr: 0.0.0.0:9000
     timeout: 1s
+  jwt:
+    signing_key: "d5cfc646-3692-4c98-98b3-ca7b8553d289"
+    expires_time: 604800
+    buffer_time: 86400
+    issuer: qmPlus
 data:
   database:
     driver: mysql

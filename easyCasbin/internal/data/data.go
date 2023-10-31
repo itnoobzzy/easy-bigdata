@@ -11,6 +11,7 @@ import (
 	"github.com/google/wire"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 	"strings"
 )
@@ -85,12 +86,13 @@ func NewDB(c *conf.Data) *gorm.DB {
 
 	log.Info("failed opening connection to ")
 	db, err := gorm.Open(mysql.Open(c.Database.Source), &gorm.Config{
-		//Logger:                                   newLogger,
+		//Logger:                                   newLonewLoggergger,
 		DisableForeignKeyConstraintWhenMigrating: true,
 		NamingStrategy:                           schema.NamingStrategy{
 			//SingularTable: true, // 表名是否加 s
 		},
 	})
+	db.Logger = logger.Default.LogMode(logger.Silent)
 	if err != nil {
 		log.Errorf("failed opening connection to sqlite: %v", err)
 		panic("failed to connect database")

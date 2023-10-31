@@ -33,10 +33,8 @@ func (u *UserService) CreateUser(ctx context.Context, req *v1.CreateUserInfo) (*
 	}
 	return &v1.UserInfoResponse{
 		Id:       user.ID,
-		Password: user.Password,
 		Mobile:   user.Mobile,
 		NickName: user.NickName,
-		Gender:   user.Gender,
 	}, nil
 }
 
@@ -51,10 +49,8 @@ func (u *UserService) GetUserList(ctx context.Context, req *v1.PageInfo) (*v1.Us
 	for _, user := range list {
 		rsp.Data = append(rsp.Data, &v1.UserInfoResponse{
 			Id:       user.ID,
-			Password: user.Password,
 			Mobile:   user.Mobile,
 			NickName: user.NickName,
-			Gender:   user.Gender,
 		})
 	}
 	return rsp, nil
@@ -67,10 +63,8 @@ func (u *UserService) GetUserByMobile(ctx context.Context, req *v1.MobileRequest
 	}
 	return &v1.UserInfoResponse{
 		Id:       user.ID,
-		Password: user.Password,
 		Mobile:   user.Mobile,
 		NickName: user.NickName,
-		Gender:   user.Gender,
 	}, nil
 }
 
@@ -106,9 +100,36 @@ func (u *UserService) GetUserById(ctx context.Context, req *v1.IdRequest) (*v1.U
 	}
 	return &v1.UserInfoResponse{
 		Id:       user.ID,
-		Password: user.Password,
 		Mobile:   user.Mobile,
 		NickName: user.NickName,
-		Gender:   user.Gender,
+	}, nil
+}
+
+func (u *UserService) RegisterUser(ctx context.Context, req *v1.RegisterRequest) (*emptypb.Empty, error) {
+	_, err := u.uc.CreateUser(ctx, &biz.User{
+		Mobile:   req.Mobile,
+		Password: req.Password,
+		NickName: req.NickName,
+		Active:   1,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &empty.Empty{}, nil
+}
+
+func (u *UserService) Login(ctx context.Context, req *v1.LoginRequest) (*v1.LoginRpl, error) {
+	res, err := u.uc.Login(ctx, req.NickName, req.Password)
+	if err != nil {
+		return nil, err
+	}
+	return &v1.LoginRpl{
+		User: &v1.UserInfoResponse{
+			Id:       res.User.Id,
+			Mobile:   res.User.Mobile,
+			NickName: res.User.NickName,
+		},
+		Token:     res.Token,
+		ExpiresAt: res.ExpiresAt,
 	}, nil
 }

@@ -26,6 +26,8 @@ const (
 	User_CreateUser_FullMethodName      = "/api.user.v1.User/CreateUser"
 	User_UpdateUser_FullMethodName      = "/api.user.v1.User/UpdateUser"
 	User_CheckPassword_FullMethodName   = "/api.user.v1.User/CheckPassword"
+	User_RegisterUser_FullMethodName    = "/api.user.v1.User/RegisterUser"
+	User_Login_FullMethodName           = "/api.user.v1.User/Login"
 )
 
 // UserClient is the client API for User service.
@@ -34,12 +36,20 @@ const (
 type UserClient interface {
 	// 获取用户列表
 	GetUserList(ctx context.Context, in *PageInfo, opts ...grpc.CallOption) (*UserListResponse, error)
+	// 通过 mobile 查询用户
 	GetUserByMobile(ctx context.Context, in *MobileRequest, opts ...grpc.CallOption) (*UserInfoResponse, error)
+	// 通过 Id 查询用户
 	GetUserById(ctx context.Context, in *IdRequest, opts ...grpc.CallOption) (*UserInfoResponse, error)
 	// 创建用户
 	CreateUser(ctx context.Context, in *CreateUserInfo, opts ...grpc.CallOption) (*UserInfoResponse, error)
+	// 更新用户
 	UpdateUser(ctx context.Context, in *UpdateUserInfo, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 检查用户密码
 	CheckPassword(ctx context.Context, in *PasswordCheckInfo, opts ...grpc.CallOption) (*CheckResponse, error)
+	// 注册
+	RegisterUser(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 登录
+	Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginRpl, error)
 }
 
 type userClient struct {
@@ -104,18 +114,44 @@ func (c *userClient) CheckPassword(ctx context.Context, in *PasswordCheckInfo, o
 	return out, nil
 }
 
+func (c *userClient) RegisterUser(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, User_RegisterUser_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userClient) Login(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginRpl, error) {
+	out := new(LoginRpl)
+	err := c.cc.Invoke(ctx, User_Login_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UserServer is the server API for User service.
 // All implementations must embed UnimplementedUserServer
 // for forward compatibility
 type UserServer interface {
 	// 获取用户列表
 	GetUserList(context.Context, *PageInfo) (*UserListResponse, error)
+	// 通过 mobile 查询用户
 	GetUserByMobile(context.Context, *MobileRequest) (*UserInfoResponse, error)
+	// 通过 Id 查询用户
 	GetUserById(context.Context, *IdRequest) (*UserInfoResponse, error)
 	// 创建用户
 	CreateUser(context.Context, *CreateUserInfo) (*UserInfoResponse, error)
+	// 更新用户
 	UpdateUser(context.Context, *UpdateUserInfo) (*emptypb.Empty, error)
+	// 检查用户密码
 	CheckPassword(context.Context, *PasswordCheckInfo) (*CheckResponse, error)
+	// 注册
+	RegisterUser(context.Context, *RegisterRequest) (*emptypb.Empty, error)
+	// 登录
+	Login(context.Context, *LoginRequest) (*LoginRpl, error)
 	mustEmbedUnimplementedUserServer()
 }
 
@@ -140,6 +176,12 @@ func (UnimplementedUserServer) UpdateUser(context.Context, *UpdateUserInfo) (*em
 }
 func (UnimplementedUserServer) CheckPassword(context.Context, *PasswordCheckInfo) (*CheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckPassword not implemented")
+}
+func (UnimplementedUserServer) RegisterUser(context.Context, *RegisterRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterUser not implemented")
+}
+func (UnimplementedUserServer) Login(context.Context, *LoginRequest) (*LoginRpl, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Login not implemented")
 }
 func (UnimplementedUserServer) mustEmbedUnimplementedUserServer() {}
 
@@ -262,6 +304,42 @@ func _User_CheckPassword_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _User_RegisterUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).RegisterUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_RegisterUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).RegisterUser(ctx, req.(*RegisterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _User_Login_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UserServer).Login(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: User_Login_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UserServer).Login(ctx, req.(*LoginRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // User_ServiceDesc is the grpc.ServiceDesc for User service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -292,6 +370,14 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CheckPassword",
 			Handler:    _User_CheckPassword_Handler,
+		},
+		{
+			MethodName: "RegisterUser",
+			Handler:    _User_RegisterUser_Handler,
+		},
+		{
+			MethodName: "Login",
+			Handler:    _User_Login_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

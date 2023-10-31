@@ -7,12 +7,15 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"strings"
+	"time"
 
 	"github.com/anaskhan96/go-password-encoder"
 	"github.com/go-kratos/kratos/v2/log"
 
 	"easyCasbin/api/user/v1"
 	"easyCasbin/internal/biz"
+	"easyCasbin/internal/conf"
+	"easyCasbin/middleware/jwt"
 )
 
 type userRepo struct {
@@ -27,6 +30,17 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 	}
 }
 
+func (r *userRepo) encryptPwd(pwd string) string {
+	options := &password.Options{
+		SaltLen:      16,
+		Iterations:   1000,
+		KeyLen:       32,
+		HashFunction: sha512.New,
+	}
+	salt, encodepwd := password.Encode(pwd, options)
+	return fmt.Sprintf("$pbkdf2-sha512$%s$%s", salt, encodepwd)
+}
+
 func (r *userRepo) CreateUser(ctx context.Context, u *biz.User) (*biz.User, error) {
 	var user biz.User
 	result := r.data.db.Where(&biz.User{Mobile: u.Mobile}).First(&user)
@@ -34,25 +48,42 @@ func (r *userRepo) CreateUser(ctx context.Context, u *biz.User) (*biz.User, erro
 		return nil, v1.ErrorUserExist("user %s exist", u.Mobile)
 	}
 
-	encrypt := func(pwd string) string {
-		options := &password.Options{
-			SaltLen:      16,
-			Iterations:   1000,
-			KeyLen:       32,
-			HashFunction: sha512.New,
-		}
-		salt, encodepwd := password.Encode(pwd, options)
-		return fmt.Sprintf("$pbkdf2-sha512$%s$%s", salt, encodepwd)
-	}
-
 	user.NickName = u.NickName
 	user.Mobile = u.Mobile
-	user.Password = encrypt(u.Password)
+	user.Password = r.encryptPwd(u.Password)
+	user.Active = u.Active
 	res := r.data.db.Create(&user)
 	if res.Error != nil {
 		return nil, v1.ErrorInternalErr("create user failed: %v!", res.Error)
 	}
 	return &user, nil
+}
+
+func (r *userRepo) Login(ctx context.Context, username, password string) (*biz.LoginResponse, error) {
+	sc := ctx.Value("serverConfig")
+	var user biz.User
+	//result := r.data.db.Where(&biz.User{NickName: username, Password: r.encryptPwd(password)}).First(&user)
+	result := r.data.db.Where(&biz.User{NickName: username}).First(&user)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, v1.ErrorPasswordErr("username or password error!")
+	}
+	_, err := r.CheckPassword(ctx, password, user.Password)
+	if err != nil {
+		return nil, v1.ErrorPasswordErr("username or password error!")
+	}
+	return &biz.LoginResponse{
+		User:      biz.UserInfoResponse{user.ID, user.Mobile, user.NickName},
+		Token:     r.TokenNext(ctx, user),
+		ExpiresAt: time.Now().Unix() + sc.(*conf.Server).Jwt.ExpiresTime*1000,
+	}, nil
+}
+
+func (r *userRepo) TokenNext(ctx context.Context, user biz.User) (token string) {
+	sc := ctx.Value("serverConfig")
+	j := jwt.JWT{C: sc.(*conf.Server)}
+	claims := j.CreateClaims(user.ID, user.NickName)
+	token, _ = j.CreateToken(claims)
+	return token
 }
 
 func paginate(page, pageSize int) func(db *gorm.DB) *gorm.DB {

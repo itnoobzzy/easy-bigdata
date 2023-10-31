@@ -2,13 +2,14 @@ package biz
 
 import (
 	"context"
+	"easyCasbin/internal/conf"
 	"encoding/json"
 	"fmt"
 	"github.com/go-kratos/kratos/v2/log"
+	"gorm.io/gorm"
 	"time"
 
 	"database/sql/driver"
-	"gorm.io/gorm"
 )
 
 type LocalTime time.Time
@@ -48,10 +49,7 @@ func (c *JSON) Scan(input interface{}) error {
 }
 
 type User struct {
-	ID             int64 `gorm:"primarykey"`
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
-	DeletedAt      gorm.DeletedAt
+	ID             int64      `gorm:"primarykey"`
 	FirstName      string     `json:"first_name" gorm:"type:text"`
 	LastName       string     `json:"last_name" gorm:"type:text"`
 	Username       string     `json:"username" gorm:"type:text"`
@@ -72,6 +70,9 @@ type User struct {
 	Position       string     `json:"position" gorm:"size:100"`
 	ThumbAvatar    string     `json:"thumb_avatar" gorm:"size:1000"`
 	WxUsername     string     `json:"wx_username" gorm:"size:100"`
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	DeletedAt      gorm.DeletedAt
 }
 
 func (User) TableName() string {
@@ -85,15 +86,22 @@ type UserRepo interface {
 	GetUserById(ctx context.Context, id int64) (*User, error)
 	UpdateUser(context.Context, *User) (bool, error)
 	CheckPassword(ctx context.Context, password, encryptedPassword string) (bool, error)
+	Login(ctx context.Context, username, password string) (*LoginResponse, error)
 }
 
 type UserUsecase struct {
 	repo UserRepo
 	log  *log.Helper
+	sc   *conf.Server
 }
 
-func NewUserUsecase(repo UserRepo, logger log.Logger) *UserUsecase {
-	return &UserUsecase{repo: repo, log: log.NewHelper(logger)}
+func NewUserUsecase(repo UserRepo, logger log.Logger, sc *conf.Server) *UserUsecase {
+	return &UserUsecase{repo: repo, log: log.NewHelper(logger), sc: sc}
+}
+
+func (uc *UserUsecase) Login(ctx context.Context, u, pwd string) (*LoginResponse, error) {
+	ctx = context.WithValue(ctx, "serverConfig", uc.sc)
+	return uc.repo.Login(ctx, u, pwd)
 }
 
 func (uc *UserUsecase) CreateUser(ctx context.Context, u *User) (*User, error) {
@@ -101,6 +109,7 @@ func (uc *UserUsecase) CreateUser(ctx context.Context, u *User) (*User, error) {
 }
 
 func (uc *UserUsecase) ListUser(ctx context.Context, pageNum, pageSize int) ([]*User, int, error) {
+	ctx = context.WithValue(ctx, "serverConfig", uc.sc)
 	return uc.repo.ListUser(ctx, pageNum, pageSize)
 }
 

@@ -39,18 +39,18 @@ func ErrorUserNotFound(format string, args ...interface{}) *errors.Error {
 	return errors.New(404, UserError_USER_NOT_FOUND.String(), fmt.Sprintf(format, args...))
 }
 
-// 参数确实
-func IsContentMissing(err error) bool {
+// 参数错误
+func IsInvalidArgs(err error) bool {
 	if err == nil {
 		return false
 	}
 	e := errors.FromError(err)
-	return e.Reason == UserError_CONTENT_MISSING.String() && e.Code == 400
+	return e.Reason == UserError_INVALID_ARGS.String() && e.Code == 400
 }
 
-// 参数确实
-func ErrorContentMissing(format string, args ...interface{}) *errors.Error {
-	return errors.New(400, UserError_CONTENT_MISSING.String(), fmt.Sprintf(format, args...))
+// 参数错误
+func ErrorInvalidArgs(format string, args ...interface{}) *errors.Error {
+	return errors.New(400, UserError_INVALID_ARGS.String(), fmt.Sprintf(format, args...))
 }
 
 // 用户已存在
@@ -65,4 +65,18 @@ func IsUserExist(err error) bool {
 // 用户已存在
 func ErrorUserExist(format string, args ...interface{}) *errors.Error {
 	return errors.New(409, UserError_USER_EXIST.String(), fmt.Sprintf(format, args...))
+}
+
+// 用户名或密码错误
+func IsPasswordErr(err error) bool {
+	if err == nil {
+		return false
+	}
+	e := errors.FromError(err)
+	return e.Reason == UserError_PASSWORD_ERR.String() && e.Code == 401
+}
+
+// 用户名或密码错误
+func ErrorPasswordErr(format string, args ...interface{}) *errors.Error {
+	return errors.New(401, UserError_PASSWORD_ERR.String(), fmt.Sprintf(format, args...))
 }
