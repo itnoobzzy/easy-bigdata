@@ -2,73 +2,101 @@ package data
 
 import (
 	"context"
+	v1 "easyCasbin/api/user/v1"
+	"easyCasbin/internal/biz"
+	"easyCasbin/internal/conf"
+	"github.com/go-redis/redis/v8"
+	"github.com/golang/protobuf/ptypes/duration"
+	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm"
+	"os"
 	"testing"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/golang/mock/gomock"
-	"github.com/stretchr/testify/assert"
-
-	"easyCasbin/internal/biz"
-	"easyCasbin/internal/conf"
-	"easyCasbin/internal/mocks/mrepo"
 )
 
-func TestUserUseCase_login(t *testing.T) {
-	controller := gomock.NewController(t)
-	repo := mrepo.NewMockUserRepo(controller)
-	encryptService := mrepo.NewMockEncryptService(controller)
+var (
+	tdb  *gorm.DB
+	trdb *redis.Client
+)
 
-	userUseCase := biz.NewUserUsecase(repo, log.DefaultLogger, &conf.Server{
-		Jwt: &conf.Server_JWT{
-			SigningKey:  "d5cfc646-3692-4c98-98b3-ca7b8553d289",
-			ExpiresTime: 604800,
-			BufferTime:  86400,
-			Issuer:      "easyCasbin",
+// TestMain 是在当前package下，最先运行的一个函数，常用于初始化
+func TestMain(m *testing.M) {
+	c := &conf.Data{
+		Database: &conf.Data_Database{
+			Driver: "mysql",
+			Source: "dbadmin:hE4sqSfuCQeXEXwz@tcp(rm-3nsc58907o3epw2me.mysql.rds.aliyuncs.com:3306)/easyBigdata?charset=utf8mb4&parseTime=True&loc=Local",
+			DbName: "easyBigdata",
 		},
-	})
+		Redis: &conf.Data_Redis{
+			Addr: "",
+			ReadTimeout: &duration.Duration{
+				Seconds: 2,
+				Nanos:   0,
+			},
+			WriteTimeout: &duration.Duration{
+				Seconds: 2,
+				Nanos:   0,
+			},
+		},
+	}
+	tdb = NewDB(c)
+	trdb = NewRedis(c)
+	os.Exit(m.Run())
+}
 
-	data := []struct {
-		name      string
-		mockFunc  func()
-		wantErr   assert.ErrorAssertionFunc
-		wantToken string
-		ctx       context.Context
-		req       func() *biz.LoginRequest
+func TestUserRepo_CreateUser(t *testing.T) {
+	ctx := context.Background()
+	repo := NewUserRepo(&Data{
+		db:  tdb,
+		rdb: trdb,
+	}, log.DefaultLogger)
+
+	cases := []struct {
+		name    string
+		wantErr assert.ErrorAssertionFunc
+		ctx     context.Context
+		user    *biz.User
 	}{
 		{
 			name: "normal",
-			mockFunc: func() {
-				user := &biz.User{
-					ID:       123,
-					Username: "zzy",
-					Password: "123",
-				}
-				repo.EXPECT().GetUserByName(gomock.Any(), "zzy").Return(user, nil).Times(1)
-				encryptService.EXPECT().CheckPassword(gomock.Any(), "123", "123").Return(true).Times(1)
-				encryptService.EXPECT().Token(gomock.Any(), user).Return("token string", nil).Times(1)
-			},
 			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
 				assert.NoError(t, err)
 				return true
 			},
-			wantToken: "token string",
-			ctx:       context.Background(),
-			req: func() *biz.LoginRequest {
-				r, _ := biz.NewLoginRequest("zzy", "123")
-				return r
+			ctx: ctx,
+			user: &biz.User{
+				Username: "zzy",
+				NickName: "志勇",
+				Mobile:   "17720495379",
+				Password: "123",
+				Active:   0,
+			},
+		},
+		{
+			name: "user exists",
+			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+				assert.ErrorIs(t, err, v1.ErrorUserExist("user exists"))
+				return false
+			},
+			ctx: ctx,
+			user: &biz.User{
+				Username: "zzy",
+				NickName: "志勇",
+				Mobile:   "17720495379",
+				Password: "123",
+				Active:   0,
 			},
 		},
 	}
-	for _, item := range data {
+	for _, item := range cases {
 		t.Run(item.name, func(t *testing.T) {
-			item.mockFunc()
-			loginRequest := item.req()
-			got, err := userUseCase.Login(item.ctx, loginRequest, encryptService)
+			user, err := repo.CreateUser(item.ctx, item.user)
 			if !item.wantErr(t, err) {
 				return
 			}
-			assert.Equal(t, item.wantToken, got.Token)
+			assert.NotNil(t, user)
+			assert.Equal(t, item.user.Mobile, user.Mobile)
 		})
 	}
-
 }

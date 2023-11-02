@@ -3,6 +3,8 @@ module easyCasbin
 go 1.19
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/alicebob/miniredis/v2 v2.31.0
 	github.com/anaskhan96/go-password-encoder v0.0.0-20201010210601-c765b799fd72
 	github.com/envoyproxy/protoc-gen-validate v0.10.1
 	github.com/go-kratos/kratos/v2 v2.7.0
@@ -26,6 +28,7 @@ require (
 )
 
 require (
+	github.com/alicebob/gopher-json v0.0.0-20200520072559-a9ecdc9d1d3a // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
@@ -50,16 +53,15 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rakyll/statik v0.1.7 // indirect
+	github.com/yuin/gopher-lua v1.1.0 // indirect
 	go.opentelemetry.io/otel v1.16.0 // indirect
 	go.opentelemetry.io/otel/metric v1.16.0 // indirect
 	go.opentelemetry.io/otel/trace v1.16.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
-	golang.org/x/mod v0.9.0 // indirect
 	golang.org/x/net v0.11.0 // indirect
 	golang.org/x/sync v0.3.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
-	golang.org/x/tools v0.7.0 // indirect
 	google.golang.org/genproto v0.0.0-20230629202037-9506855d4529 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230629202037-9506855d4529 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

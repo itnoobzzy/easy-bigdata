@@ -84,7 +84,6 @@ func NewDB(c *conf.Data) *gorm.DB {
 		panic("failed to init database")
 	}
 
-	log.Info("failed opening connection to ")
 	db, err := gorm.Open(mysql.Open(c.Database.Source), &gorm.Config{
 		//Logger:                                   newLonewLoggergger,
 		DisableForeignKeyConstraintWhenMigrating: true,
@@ -97,7 +96,6 @@ func NewDB(c *conf.Data) *gorm.DB {
 		log.Errorf("failed opening connection to sqlite: %v", err)
 		panic("failed to connect database")
 	}
-
 	return db
 }
 
