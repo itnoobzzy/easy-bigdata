@@ -2,15 +2,16 @@ package server
 
 import (
 	"context"
-	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
-	"github.com/go-kratos/kratos/v2/middleware/logging"
-	"github.com/go-kratos/kratos/v2/middleware/selector"
-	"github.com/go-kratos/kratos/v2/middleware/validate"
-	jwtv4 "github.com/golang-jwt/jwt/v4"
+	"github.com/go-kratos/swagger-api/openapiv2"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
+	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
+	"github.com/go-kratos/kratos/v2/middleware/selector"
+	"github.com/go-kratos/kratos/v2/middleware/validate"
 	"github.com/go-kratos/kratos/v2/transport/http"
+	jwtv4 "github.com/golang-jwt/jwt/v4"
 
 	db "easyCasbin/api/db"
 	v1 "easyCasbin/api/user/v1"
@@ -60,6 +61,11 @@ func NewHTTPServer(c *conf.Server, us *service.UserService,
 		opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
 	}
 	srv := http.NewServer(opts...)
+
+	// swagger api
+	openAPIhandler := openapiv2.NewHandler()
+	srv.HandlePrefix("/q/", openAPIhandler)
+
 	v1.RegisterUserHTTPServer(srv, us)
 	db.RegisterInitDBHTTPServer(srv, ds)
 	return srv

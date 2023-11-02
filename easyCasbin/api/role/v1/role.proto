@@ -3,27 +3,74 @@ syntax = "proto3";
 package api.role.v1;
 
 import "validate/validate.proto";
+import "errors/errors.proto";
+import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 
 option go_package = "easyCasbin/api/role/v1;v1";
 option java_multiple_files = true;
 option java_package = "api.role.v1";
 
+enum DomainRoleError {
+	// 设置缺省错误码
+	option (errors.default_code) = 500;
+
+	// 内部错误
+	INTERNAL_ERR = 0 [(errors.code) = 500];
+	// 域角色不存在
+	DOMAIN_ROLE_NOT_FOUND = 1 [(errors.code) = 404];
+	// 参数错误
+	INVALID_ARGS = 2 [(errors.code) = 400];
+	// 域角色已存在
+	DOMAIN_ROLE_EXIST = 3 [(errors.code) = 409];
+}
+
 service DomainRole {
 	// 添加域角色
-	rpc AddDomainRole(AddDomainRoleReq) returns (AddDomainRoleRpl);
+	rpc AddDomainRole(AddDomainRoleReq) returns (AddDomainRoleRpl) {
+		option (google.api.http) = {
+			post: "/easyCasbin/api/v1/domain_role"
+			body: "*"
+		};
+	};
 	// 更新域角色信息
-	rpc UpdateRoleInfo(UpdateDomainRoleReq) returns (UpdateDomainRoleRpl);
+	rpc UpdateRoleInfo(UpdateDomainRoleReq) returns (UpdateDomainRoleRpl) {
+		option (google.api.http) = {
+			put: "/easyCasbin/api/v1/domain_role"
+			body: "*"
+		};
+	};
 	// DeleteRole 删除对应域的角色
-	rpc DeleteRole(DeleteDomainRoleReq) returns (DeleteDomainRoleRpl);
+	rpc DeleteRole(DeleteDomainRoleReq) returns (DeleteDomainRoleRpl) {
+		option (google.api.http) = {
+			delete: "/easyCasbin/api/v1/domain_role"
+		};
+	};
 	// GetDomainRoles 获取指定域下所有角色
-	rpc GetDomainRoles(GetAllRolesReq) returns (GetAllRolesRpl);
+	rpc GetDomainRoles(GetAllRolesReq) returns (GetAllRolesRpl) {
+		option (google.api.http) = {
+			get: "/easyCasbin/api/v1/domain_roles/{domainName}"
+		};
+	};
 	// GetDomainSubsForRole 获取指定域角色下所有用户
-	rpc GetDomainSubsForRole(GetDomainSubsForRoleReq) returns (GetDomainSubsForRoleRpl);
+	rpc GetDomainSubsForRole(GetDomainSubsForRoleReq) returns (GetDomainSubsForRoleRpl) {
+		option (google.api.http) = {
+			get: "/easyCasbin/api/v1/domain_roles/subs"
+		};
+	};
 	// AddRoleForSubInDomain 为用户添加域角色或者为角色继承另一个角色权限
-	rpc AddRoleForSubInDomain(AddRoleForSubInDomainReq) returns (AddRoleForSubInDomainRpl);
+	rpc AddRoleForSubInDomain(AddRoleForSubInDomainReq) returns (AddRoleForSubInDomainRpl){
+		option (google.api.http) = {
+			post: "/easyCasbin/api/v1/domain_roles/{domain}/{sub}/role"
+			body: "*"
+		};
+	};
 	// DeleteRoleForSubInDomain 删除角色下subject（鉴权主体）
-	rpc DeleteRoleForSubInDomain(DeleteRoleForSubInDomainReq) returns (DeleteRoleForSubInDomainRpl);
+	rpc DeleteRoleForSubInDomain(DeleteRoleForSubInDomainReq) returns (DeleteRoleForSubInDomainRpl) {
+		option (google.api.http) = {
+			delete: "/easyCasbin/api/v1/domain_roles/{domain}/role_sub"
+		};
+	};
 }
 
 

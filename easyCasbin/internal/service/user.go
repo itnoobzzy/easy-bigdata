@@ -9,6 +9,7 @@ import (
 
 	v1 "easyCasbin/api/user/v1"
 	"easyCasbin/internal/biz"
+	"easyCasbin/internal/conf"
 )
 
 type UserService struct {
@@ -16,17 +17,18 @@ type UserService struct {
 
 	uc  *biz.UserUsecase
 	log *log.Helper
+	sc  *conf.Server
 }
 
-func NewUserService(uc *biz.UserUsecase, logger log.Logger) *UserService {
-	return &UserService{uc: uc, log: log.NewHelper(logger)}
+func NewUserService(uc *biz.UserUsecase, logger log.Logger, sc *conf.Server) *UserService {
+	return &UserService{uc: uc, log: log.NewHelper(logger), sc: sc}
 }
 
 func (u *UserService) CreateUser(ctx context.Context, req *v1.CreateUserInfo) (*v1.UserInfoResponse, error) {
 	user, err := u.uc.CreateUser(ctx, &biz.User{
 		Mobile:   req.Mobile,
 		Password: req.Password,
-		NickName: req.NickName,
+		Username: req.Username,
 	})
 	if err != nil {
 		return nil, err
@@ -34,7 +36,7 @@ func (u *UserService) CreateUser(ctx context.Context, req *v1.CreateUserInfo) (*
 	return &v1.UserInfoResponse{
 		Id:       user.ID,
 		Mobile:   user.Mobile,
-		NickName: user.NickName,
+		Username: user.Username,
 	}, nil
 }
 
@@ -50,7 +52,7 @@ func (u *UserService) GetUserList(ctx context.Context, req *v1.PageInfo) (*v1.Us
 		rsp.Data = append(rsp.Data, &v1.UserInfoResponse{
 			Id:       user.ID,
 			Mobile:   user.Mobile,
-			NickName: user.NickName,
+			Username: user.Username,
 		})
 	}
 	return rsp, nil
@@ -64,7 +66,7 @@ func (u *UserService) GetUserByMobile(ctx context.Context, req *v1.MobileRequest
 	return &v1.UserInfoResponse{
 		Id:       user.ID,
 		Mobile:   user.Mobile,
-		NickName: user.NickName,
+		Username: user.Username,
 	}, nil
 }
 
@@ -85,14 +87,6 @@ func (u *UserService) UpdateUser(ctx context.Context, req *v1.UpdateUserInfo) (*
 	return &empty.Empty{}, nil
 }
 
-func (u *UserService) CheckPassword(ctx context.Context, req *v1.PasswordCheckInfo) (*v1.CheckResponse, error) {
-	check, err := u.uc.CheckPassword(ctx, req.Password, req.EncryptedPassword)
-	if err != nil {
-		return nil, err
-	}
-	return &v1.CheckResponse{Success: check}, nil
-}
-
 func (u *UserService) GetUserById(ctx context.Context, req *v1.IdRequest) (*v1.UserInfoResponse, error) {
 	user, err := u.uc.GetUserById(ctx, req.Id)
 	if err != nil {
@@ -101,7 +95,7 @@ func (u *UserService) GetUserById(ctx context.Context, req *v1.IdRequest) (*v1.U
 	return &v1.UserInfoResponse{
 		Id:       user.ID,
 		Mobile:   user.Mobile,
-		NickName: user.NickName,
+		Username: user.Username,
 	}, nil
 }
 
@@ -109,7 +103,7 @@ func (u *UserService) RegisterUser(ctx context.Context, req *v1.RegisterRequest)
 	_, err := u.uc.CreateUser(ctx, &biz.User{
 		Mobile:   req.Mobile,
 		Password: req.Password,
-		NickName: req.NickName,
+		Username: req.Username,
 		Active:   1,
 	})
 	if err != nil {
@@ -119,7 +113,12 @@ func (u *UserService) RegisterUser(ctx context.Context, req *v1.RegisterRequest)
 }
 
 func (u *UserService) Login(ctx context.Context, req *v1.LoginRequest) (*v1.LoginRpl, error) {
-	res, err := u.uc.Login(ctx, req.NickName, req.Password)
+	r, err := biz.NewLoginRequest(req.Username, req.Password)
+	if err != nil {
+		return nil, err
+	}
+	encryptService := biz.NewEncryptService(u.sc)
+	res, err := u.uc.Login(ctx, r, encryptService)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +126,7 @@ func (u *UserService) Login(ctx context.Context, req *v1.LoginRequest) (*v1.Logi
 		User: &v1.UserInfoResponse{
 			Id:       res.User.Id,
 			Mobile:   res.User.Mobile,
-			NickName: res.User.NickName,
+			Username: res.User.Username,
 		},
 		Token:     res.Token,
 		ExpiresAt: res.ExpiresAt,

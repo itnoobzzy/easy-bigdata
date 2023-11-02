@@ -6,7 +6,183 @@ info:
     title: ""
     version: 0.0.1
 paths:
+    /easyCasbin/api/v1/domain_role:
+        put:
+            tags:
+                - DomainRole
+            description: 更新域角色信息
+            operationId: DomainRole_UpdateRoleInfo
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.role.v1.UpdateDomainRoleReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.role.v1.UpdateDomainRoleRpl'
+        post:
+            tags:
+                - DomainRole
+            description: 添加域角色
+            operationId: DomainRole_AddDomainRole
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.role.v1.AddDomainRoleReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.role.v1.AddDomainRoleRpl'
+        delete:
+            tags:
+                - DomainRole
+            description: DeleteRole 删除对应域的角色
+            operationId: DomainRole_DeleteRole
+            parameters:
+                - name: domainName
+                  in: query
+                  schema:
+                    type: string
+                - name: roleName
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.role.v1.DeleteDomainRoleRpl'
+    /easyCasbin/api/v1/domain_roles/subs:
+        get:
+            tags:
+                - DomainRole
+            description: GetDomainSubsForRole 获取指定域角色下所有用户
+            operationId: DomainRole_GetDomainSubsForRole
+            parameters:
+                - name: domainName
+                  in: query
+                  schema:
+                    type: string
+                - name: roleName
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.role.v1.GetDomainSubsForRoleRpl'
+    /easyCasbin/api/v1/domain_roles/{domainName}:
+        get:
+            tags:
+                - DomainRole
+            description: GetDomainRoles 获取指定域下所有角色
+            operationId: DomainRole_GetDomainRoles
+            parameters:
+                - name: domainName
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.role.v1.GetAllRolesRpl'
+    /easyCasbin/api/v1/domain_roles/{domain}/role_sub:
+        delete:
+            tags:
+                - DomainRole
+            description: DeleteRoleForSubInDomain 删除角色下subject（鉴权主体）
+            operationId: DomainRole_DeleteRoleForSubInDomain
+            parameters:
+                - name: domain
+                  in: path
+                  description: 'eg: domain:domain1'
+                  required: true
+                  schema:
+                    type: string
+                - name: sub
+                  in: query
+                  description: 'eg: user:zhouzy1 or role:admin'
+                  schema:
+                    type: string
+                - name: role
+                  in: query
+                  description: 'eg: role:common'
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.role.v1.DeleteRoleForSubInDomainRpl'
+    /easyCasbin/api/v1/domain_roles/{domain}/{sub}/role:
+        post:
+            tags:
+                - DomainRole
+            description: AddRoleForSubInDomain 为用户添加域角色或者为角色继承另一个角色权限
+            operationId: DomainRole_AddRoleForSubInDomain
+            parameters:
+                - name: domain
+                  in: path
+                  description: 'eg: domain:domain1'
+                  required: true
+                  schema:
+                    type: string
+                - name: sub
+                  in: path
+                  description: 'eg: user:zhouzy1 or role:admin'
+                  required: true
+                  schema:
+                    type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.role.v1.AddRoleForSubInDomainReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.role.v1.AddRoleForSubInDomainRpl'
     /easyCasbin/api/v1/user:
+        put:
+            tags:
+                - User
+            description: 更新用户
+            operationId: User_UpdateUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.user.v1.UpdateUserInfo'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
         post:
             tags:
                 - User
@@ -60,6 +236,44 @@ paths:
                 "200":
                     description: OK
                     content: {}
+    /easyCasbin/api/v1/user/{id}:
+        get:
+            tags:
+                - User
+            description: 通过 Id 查询用户
+            operationId: User_GetUserById
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.user.v1.UserInfoResponse'
+    /easyCasbin/api/v1/user/{mobile}:
+        get:
+            tags:
+                - User
+            description: 通过 mobile 查询用户
+            operationId: User_GetUserByMobile
+            parameters:
+                - name: mobile
+                  in: path
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.user.v1.UserInfoResponse'
     /easyCasbin/api/v1/users:
         get:
             tags:
@@ -110,10 +324,158 @@ paths:
                                 $ref: '#/components/schemas/db.init.InitRpl'
 components:
     schemas:
+        api.role.v1.AddDomainRoleReq:
+            type: object
+            properties:
+                domainName:
+                    type: string
+                roleName:
+                    type: string
+        api.role.v1.AddDomainRoleRpl:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: uint32
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/api.role.v1.AddDomainRoleRpl_Data'
+        api.role.v1.AddDomainRoleRpl_Data:
+            type: object
+            properties:
+                id:
+                    type: string
+                creatTime:
+                    type: string
+                    format: date-time
+                name:
+                    type: string
+                domain:
+                    type: string
+        api.role.v1.AddRoleForSubInDomainReq:
+            type: object
+            properties:
+                sub:
+                    type: string
+                    description: 'eg: user:zhouzy1 or role:admin'
+                domain:
+                    type: string
+                    description: 'eg: domain:domain1'
+                role:
+                    type: string
+                    description: 'eg: role:common'
+        api.role.v1.AddRoleForSubInDomainRpl:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: uint32
+                msg:
+                    type: string
+        api.role.v1.DeleteDomainRoleRpl:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: uint32
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/api.role.v1.DeleteDomainRoleRpl_Data'
+        api.role.v1.DeleteDomainRoleRpl_Data:
+            type: object
+            properties:
+                deleteTime:
+                    type: string
+                    format: date-time
+        api.role.v1.DeleteRoleForSubInDomainRpl:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: uint32
+                msg:
+                    type: string
+        api.role.v1.GetAllRolesRpl:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: uint32
+                msg:
+                    type: string
+                data:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.role.v1.GetAllRolesRpl_Data'
+        api.role.v1.GetAllRolesRpl_Data:
+            type: object
+            properties:
+                id:
+                    type: string
+                createTime:
+                    type: string
+                    format: date-time
+                updateTime:
+                    type: string
+                    format: date-time
+                name:
+                    type: string
+                domain:
+                    type: string
+        api.role.v1.GetDomainSubsForRoleRpl:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: uint32
+                msg:
+                    type: string
+                data:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.role.v1.GetDomainSubsForRoleRpl_Data'
+        api.role.v1.GetDomainSubsForRoleRpl_Data:
+            type: object
+            properties:
+                sub:
+                    type: string
+        api.role.v1.UpdateDomainRoleReq:
+            type: object
+            properties:
+                domainName:
+                    type: string
+                roleName:
+                    type: string
+                newRoleName:
+                    type: string
+        api.role.v1.UpdateDomainRoleRpl:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: uint32
+                msg:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/api.role.v1.UpdateDomainRoleRpl_Data'
+        api.role.v1.UpdateDomainRoleRpl_Data:
+            type: object
+            properties:
+                id:
+                    type: string
+                updateTime:
+                    type: string
+                    format: date-time
+                name:
+                    type: string
+                domain:
+                    type: string
         api.user.v1.CreateUserInfo:
             type: object
             properties:
-                nickName:
+                username:
                     type: string
                 password:
                     type: string
@@ -123,7 +485,7 @@ components:
         api.user.v1.LoginRequest:
             type: object
             properties:
-                nickName:
+                username:
                     type: string
                 password:
                     type: string
@@ -140,13 +502,24 @@ components:
         api.user.v1.RegisterRequest:
             type: object
             properties:
-                nickName:
+                username:
                     type: string
                 password:
                     type: string
                 mobile:
                     type: string
             description: 注册用户
+        api.user.v1.UpdateUserInfo:
+            type: object
+            properties:
+                id:
+                    type: string
+                nickName:
+                    type: string
+                gender:
+                    type: string
+                birthday:
+                    type: string
         api.user.v1.UserInfoResponse:
             type: object
             properties:
@@ -154,7 +527,7 @@ components:
                     type: string
                 mobile:
                     type: string
-                nickName:
+                username:
                     type: string
             description: 用户信息
         api.user.v1.UserListResponse:
@@ -177,6 +550,7 @@ components:
                 message:
                     type: string
 tags:
+    - name: DomainRole
     - name: InitDB
     - name: User
       description: 用户相关接口

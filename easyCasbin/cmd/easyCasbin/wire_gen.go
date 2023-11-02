@@ -32,7 +32,7 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	}
 	userRepo := data.NewUserRepo(dataData, logger)
 	userUsecase := biz.NewUserUsecase(userRepo, logger, confServer)
-	userService := service.NewUserService(userUsecase, logger)
+	userService := service.NewUserService(userUsecase, logger, confServer)
 	grpcServer := server.NewGRPCServer(confServer, userService, logger)
 	dbIniterRepo := data.NewDbIniterRepo(dataData, logger)
 	dbIniterUsecase := biz.NewDbiniterUsecase(dbIniterRepo, logger)

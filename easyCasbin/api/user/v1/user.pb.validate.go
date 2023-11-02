@@ -180,17 +180,9 @@ func (m *UserInfoResponse) validate(all bool) error {
 
 	// no validation rules for Id
 
-	// no validation rules for Password
-
 	// no validation rules for Mobile
 
-	// no validation rules for NickName
-
-	// no validation rules for Birthday
-
-	// no validation rules for Gender
-
-	// no validation rules for Role
+	// no validation rules for Username
 
 	if len(errors) > 0 {
 		return UserInfoResponseMultiError(errors)
@@ -631,9 +623,9 @@ func (m *CreateUserInfo) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetNickName()) < 1 {
+	if utf8.RuneCountInString(m.GetUsername()) < 1 {
 		err := CreateUserInfoValidationError{
-			field:  "NickName",
+			field:  "Username",
 			reason: "value length must be at least 1 runes",
 		}
 		if !all {
@@ -1062,9 +1054,9 @@ func (m *RegisterRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetNickName()) < 1 {
+	if utf8.RuneCountInString(m.GetUsername()) < 1 {
 		err := RegisterRequestValidationError{
-			field:  "NickName",
+			field:  "Username",
 			reason: "value length must be at least 1 runes",
 		}
 		if !all {
@@ -1197,9 +1189,9 @@ func (m *LoginRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetNickName()) < 1 {
+	if utf8.RuneCountInString(m.GetUsername()) < 1 {
 		err := LoginRequestValidationError{
-			field:  "NickName",
+			field:  "Username",
 			reason: "value length must be at least 1 runes",
 		}
 		if !all {

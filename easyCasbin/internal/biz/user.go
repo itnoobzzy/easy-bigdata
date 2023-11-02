@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	v1 "easyCasbin/api/user/v1"
 	"easyCasbin/internal/conf"
 	"encoding/json"
 	"fmt"
@@ -79,14 +80,14 @@ func (User) TableName() string {
 	return "user"
 }
 
+//go:generate mockgen -destination=../mocks/mrepo/user.go -package=mrepo . UserRepo
 type UserRepo interface {
 	CreateUser(context.Context, *User) (*User, error)
 	ListUser(ctx context.Context, pageNum, pageSize int) ([]*User, int, error)
 	UserByMobile(ctx context.Context, mobile string) (*User, error)
 	GetUserById(ctx context.Context, id int64) (*User, error)
+	GetUserByName(ctx context.Context, name string) (*User, error)
 	UpdateUser(context.Context, *User) (bool, error)
-	CheckPassword(ctx context.Context, password, encryptedPassword string) (bool, error)
-	Login(ctx context.Context, username, password string) (*LoginResponse, error)
 }
 
 type UserUsecase struct {
@@ -99,9 +100,28 @@ func NewUserUsecase(repo UserRepo, logger log.Logger, sc *conf.Server) *UserUsec
 	return &UserUsecase{repo: repo, log: log.NewHelper(logger), sc: sc}
 }
 
-func (uc *UserUsecase) Login(ctx context.Context, u, pwd string) (*LoginResponse, error) {
-	ctx = context.WithValue(ctx, "serverConfig", uc.sc)
-	return uc.repo.Login(ctx, u, pwd)
+func (uc *UserUsecase) Login(ctx context.Context, loginReq *LoginRequest,
+	encryptService EncryptService) (*LoginResponse, error) {
+	// 获取用户信息
+	user, err := uc.repo.GetUserByName(ctx, loginReq.username)
+	if err != nil {
+		return nil, err
+	}
+	// 校验密码
+	check := encryptService.CheckPassword(ctx, loginReq.password, user.Password)
+	if err != nil || !check {
+		return nil, v1.ErrorPasswordErr("password error!")
+	}
+	// 颁发token
+	token, err := encryptService.Token(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+	return &LoginResponse{
+		User:      UserInfoResponse{user.ID, user.Mobile, user.Username},
+		Token:     token,
+		ExpiresAt: (time.Now().Unix() + uc.sc.Jwt.ExpiresTime) * 1000,
+	}, nil
 }
 
 func (uc *UserUsecase) CreateUser(ctx context.Context, u *User) (*User, error) {
@@ -123,8 +143,4 @@ func (uc *UserUsecase) GetUserById(ctx context.Context, id int64) (*User, error)
 
 func (uc *UserUsecase) UpdateUser(ctx context.Context, user *User) (bool, error) {
 	return uc.repo.UpdateUser(ctx, user)
-}
-
-func (uc *UserUsecase) CheckPassword(ctx context.Context, password, encryptedPassword string) (bool, error) {
-	return uc.repo.CheckPassword(ctx, password, encryptedPassword)
 }

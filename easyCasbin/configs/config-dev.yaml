@@ -6,10 +6,10 @@ server:
     addr: 0.0.0.0:9000
     timeout: 1s
   jwt:
-    signing_key: "d5cfc646-3692-4c98-98b3-ca7b8553d289"
+    signing_key: d5cfc646-3692-4c98-98b3-ca7b8553d289
     expires_time: 604800
     buffer_time: 86400
-    issuer: qmPlus
+    issuer: easyCasbin
 data:
   database:
     driver: mysql
@@ -26,7 +26,7 @@ trace:
   endpoint: http://127.0.0.1:14268/api/traces
 log:
   level: info
-  prefix: '[easyCasbin]'
+  prefix: [easyCasbin]
   format: json
   director: /Users/zhouzhiyong/Desktop/easy-bigdata/easyCasbin/logs
   encode_level: LowercaseLevelEncoder

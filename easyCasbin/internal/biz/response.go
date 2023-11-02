@@ -3,7 +3,7 @@ package biz
 type UserInfoResponse struct {
 	Id       int64
 	Mobile   string
-	NickName string
+	Username string
 }
 
 type LoginResponse struct {

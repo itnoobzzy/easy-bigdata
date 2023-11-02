@@ -25,7 +25,6 @@ const (
 	User_GetUserById_FullMethodName     = "/api.user.v1.User/GetUserById"
 	User_CreateUser_FullMethodName      = "/api.user.v1.User/CreateUser"
 	User_UpdateUser_FullMethodName      = "/api.user.v1.User/UpdateUser"
-	User_CheckPassword_FullMethodName   = "/api.user.v1.User/CheckPassword"
 	User_RegisterUser_FullMethodName    = "/api.user.v1.User/RegisterUser"
 	User_Login_FullMethodName           = "/api.user.v1.User/Login"
 )
@@ -44,8 +43,6 @@ type UserClient interface {
 	CreateUser(ctx context.Context, in *CreateUserInfo, opts ...grpc.CallOption) (*UserInfoResponse, error)
 	// 更新用户
 	UpdateUser(ctx context.Context, in *UpdateUserInfo, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	// 检查用户密码
-	CheckPassword(ctx context.Context, in *PasswordCheckInfo, opts ...grpc.CallOption) (*CheckResponse, error)
 	// 注册
 	RegisterUser(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 登录
@@ -105,15 +102,6 @@ func (c *userClient) UpdateUser(ctx context.Context, in *UpdateUserInfo, opts ..
 	return out, nil
 }
 
-func (c *userClient) CheckPassword(ctx context.Context, in *PasswordCheckInfo, opts ...grpc.CallOption) (*CheckResponse, error) {
-	out := new(CheckResponse)
-	err := c.cc.Invoke(ctx, User_CheckPassword_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *userClient) RegisterUser(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, User_RegisterUser_FullMethodName, in, out, opts...)
@@ -146,8 +134,6 @@ type UserServer interface {
 	CreateUser(context.Context, *CreateUserInfo) (*UserInfoResponse, error)
 	// 更新用户
 	UpdateUser(context.Context, *UpdateUserInfo) (*emptypb.Empty, error)
-	// 检查用户密码
-	CheckPassword(context.Context, *PasswordCheckInfo) (*CheckResponse, error)
 	// 注册
 	RegisterUser(context.Context, *RegisterRequest) (*emptypb.Empty, error)
 	// 登录
@@ -173,9 +159,6 @@ func (UnimplementedUserServer) CreateUser(context.Context, *CreateUserInfo) (*Us
 }
 func (UnimplementedUserServer) UpdateUser(context.Context, *UpdateUserInfo) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
-}
-func (UnimplementedUserServer) CheckPassword(context.Context, *PasswordCheckInfo) (*CheckResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CheckPassword not implemented")
 }
 func (UnimplementedUserServer) RegisterUser(context.Context, *RegisterRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterUser not implemented")
@@ -286,24 +269,6 @@ func _User_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_CheckPassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PasswordCheckInfo)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(UserServer).CheckPassword(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: User_CheckPassword_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UserServer).CheckPassword(ctx, req.(*PasswordCheckInfo))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _User_RegisterUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RegisterRequest)
 	if err := dec(in); err != nil {
@@ -366,10 +331,6 @@ var User_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateUser",
 			Handler:    _User_UpdateUser_Handler,
-		},
-		{
-			MethodName: "CheckPassword",
-			Handler:    _User_CheckPassword_Handler,
 		},
 		{
 			MethodName: "RegisterUser",

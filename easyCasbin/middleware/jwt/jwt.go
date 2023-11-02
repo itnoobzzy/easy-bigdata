@@ -11,20 +11,19 @@ import (
 )
 
 type JWT struct {
-	SigningKey []byte
-	C          *conf.Server
+	C *conf.Server
 }
 
 type CustomClaims struct {
 	ID       int64  `json:"id"`
-	NickName string `json:"nickname"`
+	Username string `json:"username"`
 	jwt.RegisteredClaims
 }
 
-func (j *JWT) CreateClaims(id int64, nickname string) jwt.MapClaims {
+func (j *JWT) CreateClaims(id int64, username string) jwt.MapClaims {
 	return jwt.MapClaims{
 		"id":       id,
-		"nickname": nickname,
+		"username": username,
 	}
 }
 
@@ -32,7 +31,7 @@ func (j *JWT) CreateToken(claims jwt.MapClaims) (string, error) {
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		CustomClaims{
 			claims["id"].(int64),
-			claims["nickname"].(string),
+			claims["username"].(string),
 			jwt.RegisteredClaims{
 				ExpiresAt: jwt.NewNumericDate(time.Unix(time.Now().Unix()+j.C.Jwt.ExpiresTime, 0)),
 				Issuer:    j.C.Jwt.Issuer,
@@ -51,6 +50,6 @@ func FromContext(ctx context.Context) (CustomClaims, error) {
 	c, _ := token.(jwt.MapClaims)
 	return CustomClaims{
 		ID:       int64(c["id"].(float64)),
-		NickName: c["nickname"].(string),
+		Username: c["username"].(string),
 	}, nil
 }
