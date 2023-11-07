@@ -2,9 +2,10 @@ package data
 
 import (
 	"database/sql"
-	"easyCasbin/internal/conf"
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/extra/redisotel"
 	"github.com/go-redis/redis/v8"
@@ -13,11 +14,13 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
-	"strings"
+
+	"easyCasbin/internal/conf"
 )
 
 // ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis, NewUserRepo, NewDbIniterRepo)
+var ProviderSet = wire.NewSet(NewData, NewDB, NewRedis,
+	NewUserRepo, NewDbIniterRepo, NewRoleRepo)
 
 // Data .
 type Data struct {

@@ -3,7 +3,6 @@ package data
 import (
 	"context"
 	"crypto/sha512"
-	"easyCasbin/utils"
 	"errors"
 	"fmt"
 
@@ -13,6 +12,7 @@ import (
 
 	"easyCasbin/api/user/v1"
 	"easyCasbin/internal/biz"
+	"easyCasbin/utils"
 )
 
 type userRepo struct {

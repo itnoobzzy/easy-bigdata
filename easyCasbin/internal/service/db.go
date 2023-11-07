@@ -10,8 +10,6 @@ import (
 	"easyCasbin/internal/biz"
 )
 
-//var ProviderSet = wire.NewSet(NewDbIniter)
-
 type DbIniterService struct {
 	uc *biz.DbIniterUsecase
 
@@ -25,13 +23,10 @@ func NewDbIniterService(uc *biz.DbIniterUsecase, logger log.Logger) *DbIniterSer
 	}
 }
 
-func (d *DbIniterService) InitUserDB(ctx context.Context, req *emptypb.Empty) (rsp *db.InitRpl, err error) {
-	return d.uc.InitUserModel(ctx, &biz.User{})
+func (d *DbIniterService) InitUserDB(context.Context, *emptypb.Empty) (rsp *db.InitRpl, err error) {
+	return d.uc.InitUserModel(&biz.User{})
 }
 
-func (d *DbIniterService) InitRoleDB(ctx context.Context, req *emptypb.Empty) (rsp *db.InitRpl, err error) {
-	return &db.InitRpl{
-		Code:    0,
-		Message: "",
-	}, nil
+func (d *DbIniterService) InitRoleDB(context.Context, *emptypb.Empty) (rsp *db.InitRpl, err error) {
+	return d.uc.InitDomainRoleModel(&biz.Role{})
 }

@@ -5,7 +5,6 @@ package api.role.v1;
 import "validate/validate.proto";
 import "errors/errors.proto";
 import "google/api/annotations.proto";
-import "google/protobuf/timestamp.proto";
 
 option go_package = "easyCasbin/api/role/v1;v1";
 option java_multiple_files = true;
@@ -82,7 +81,7 @@ message AddDomainRoleReq {
 message AddDomainRoleRpl {
 	message Data {
 		int64 id = 1;
-		google.protobuf.Timestamp creatTime = 2;
+		int64 creatTime = 2;
 		string name = 3;
 		string domain = 4;
 	}
@@ -100,7 +99,7 @@ message UpdateDomainRoleReq {
 message UpdateDomainRoleRpl {
 	message Data {
 		int64 id = 1;
-		google.protobuf.Timestamp updateTime = 2;
+		int64 updateTime = 2;
 		string name = 3;
 		string domain = 4;
 	}
@@ -116,7 +115,7 @@ message DeleteDomainRoleReq {
 
 message DeleteDomainRoleRpl {
 	message Data {
-		google.protobuf.Timestamp deleteTime = 1;
+		int64 deleteTime = 1;
 	}
 	uint32 code = 1;
 	string msg = 2;
@@ -130,8 +129,8 @@ message GetAllRolesReq {
 message GetAllRolesRpl {
 	message Data {
 		int64 id = 1;
-		google.protobuf.Timestamp createTime = 2;
-		google.protobuf.Timestamp updateTime = 3;
+		int64 createTime = 2;
+		int64 updateTime = 3;
 		string name = 4;
 		string domain = 5;
 	}

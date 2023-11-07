@@ -1,7 +1,6 @@
 package data
 
 import (
-	"context"
 	db "easyCasbin/api/db"
 	"easyCasbin/internal/biz"
 	"github.com/go-kratos/kratos/v2/log"
@@ -19,7 +18,7 @@ func NewDbIniterRepo(data *Data, logger log.Logger) biz.DbIniterRepo {
 	}
 }
 
-func (d *dbIniterRepo) InitUserModel(ctx context.Context, user *biz.User) (rsp *db.InitRpl, err error) {
+func (d *dbIniterRepo) InitUserModel(user *biz.User) (rsp *db.InitRpl, err error) {
 	if err = d.data.db.AutoMigrate(&user); err != nil {
 		return &db.InitRpl{
 			Code:    1,
@@ -30,5 +29,19 @@ func (d *dbIniterRepo) InitUserModel(ctx context.Context, user *biz.User) (rsp *
 	return &db.InitRpl{
 		Code:    0,
 		Message: "init user db success!",
+	}, nil
+}
+
+func (d *dbIniterRepo) InitDomainRoleModel(role *biz.Role) (rsp *db.InitRpl, err error) {
+	if err = d.data.db.AutoMigrate(&role); err != nil {
+		return &db.InitRpl{
+			Code:    1,
+			Message: err.Error(),
+		}, err
+	}
+	d.log.Info("init role table success!")
+	return &db.InitRpl{
+		Code:    0,
+		Message: "init role db success!",
 	}, nil
 }

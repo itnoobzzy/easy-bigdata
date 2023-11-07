@@ -27,6 +27,7 @@ message Server {
     int64 expires_time = 2;
     int64 buffer_time = 3;
     string issuer = 4;
+    string white_list = 5;
   }
   HTTP http = 1;
   GRPC grpc = 2;

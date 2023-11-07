@@ -10,6 +10,8 @@ server:
     expires_time: 604800
     buffer_time: 86400
     issuer: easyCasbin
+    white_list: "/api.user.v1.User/Login, /api.user.v1.User/register, 
+    /db.init.InitDB/InitUserDB, /db.init.InitDB/InitRoleDB"
 data:
   database:
     driver: mysql
@@ -26,7 +28,7 @@ trace:
   endpoint: http://127.0.0.1:14268/api/traces
 log:
   level: info
-  prefix: [easyCasbin]
+  prefix: "[easyCasbin]"
   format: json
   director: /Users/zhouzhiyong/Desktop/easy-bigdata/easyCasbin/logs
   encode_level: LowercaseLevelEncoder

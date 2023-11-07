@@ -348,7 +348,6 @@ components:
                     type: string
                 creatTime:
                     type: string
-                    format: date-time
                 name:
                     type: string
                 domain:
@@ -388,7 +387,6 @@ components:
             properties:
                 deleteTime:
                     type: string
-                    format: date-time
         api.role.v1.DeleteRoleForSubInDomainRpl:
             type: object
             properties:
@@ -416,10 +414,8 @@ components:
                     type: string
                 createTime:
                     type: string
-                    format: date-time
                 updateTime:
                     type: string
-                    format: date-time
                 name:
                     type: string
                 domain:
@@ -467,7 +463,6 @@ components:
                     type: string
                 updateTime:
                     type: string
-                    format: date-time
                 name:
                     type: string
                 domain:

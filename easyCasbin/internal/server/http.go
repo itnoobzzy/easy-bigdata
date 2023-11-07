@@ -2,7 +2,7 @@ package server
 
 import (
 	"context"
-	"github.com/go-kratos/swagger-api/openapiv2"
+	"strings"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
@@ -11,18 +11,24 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/selector"
 	"github.com/go-kratos/kratos/v2/middleware/validate"
 	"github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/go-kratos/swagger-api/openapiv2"
 	jwtv4 "github.com/golang-jwt/jwt/v4"
 
 	db "easyCasbin/api/db"
-	v1 "easyCasbin/api/user/v1"
+	rv1 "easyCasbin/api/role/v1"
+	uv1 "easyCasbin/api/user/v1"
 	"easyCasbin/internal/conf"
 	"easyCasbin/internal/service"
 )
 
-func NewWhiteListMatcher() selector.MatchFunc {
+func NewWhiteListMatcher(w string) selector.MatchFunc {
 	whiteList := make(map[string]bool)
-	whiteList["/api.user.v1.User/Login"] = true
-	whiteList["/api.user.v1.User/register"] = true
+	wl := strings.Split(w, ",")
+	for _, u := range wl {
+		whiteList[strings.TrimSpace(u)] = true
+	}
+	//whiteList["/api.user.v1.User/Login"] = true
+	//whiteList["/api.user.v1.User/register"] = true
 	return func(ctx context.Context, operation string) bool {
 		if _, ok := whiteList[operation]; ok {
 			return false
@@ -32,7 +38,7 @@ func NewWhiteListMatcher() selector.MatchFunc {
 }
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Server, us *service.UserService,
+func NewHTTPServer(c *conf.Server, us *service.UserService, rs *service.DomainRoleService,
 	ds *service.DbIniterService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
@@ -48,7 +54,7 @@ func NewHTTPServer(c *conf.Server, us *service.UserService,
 					//	return &mjwt.CustomClaims{}
 					//}),
 				),
-			).Match(NewWhiteListMatcher()).Build(),
+			).Match(NewWhiteListMatcher(c.Jwt.WhiteList)).Build(),
 		),
 	}
 	if c.Http.Network != "" {
@@ -66,7 +72,8 @@ func NewHTTPServer(c *conf.Server, us *service.UserService,
 	openAPIhandler := openapiv2.NewHandler()
 	srv.HandlePrefix("/q/", openAPIhandler)
 
-	v1.RegisterUserHTTPServer(srv, us)
+	uv1.RegisterUserHTTPServer(srv, us)
 	db.RegisterInitDBHTTPServer(srv, ds)
+	rv1.RegisterDomainRoleHTTPServer(srv, rs)
 	return srv
 }
