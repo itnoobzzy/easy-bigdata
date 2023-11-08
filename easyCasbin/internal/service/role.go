@@ -29,10 +29,10 @@ func (s *DomainRoleService) AddDomainRole(ctx context.Context, req *v1.AddDomain
 		Code: 0,
 		Msg:  "add domain role success!",
 		Data: &v1.AddDomainRoleRpl_Data{
-			Id:        int64(role.Id),
+			Id:        role.Id,
 			Domain:    role.Domain,
 			Name:      role.Name,
-			CreatTime: role.CreateTime.Unix(),
+			CreatTime: role.CreateTime,
 		},
 	}, nil
 }
@@ -46,10 +46,10 @@ func (s *DomainRoleService) UpdateRoleInfo(ctx context.Context, req *v1.UpdateDo
 		Code: 0,
 		Msg:  "update domain role success!",
 		Data: &v1.UpdateDomainRoleRpl_Data{
-			Id:         int64(role.Id),
+			Id:         role.Id,
 			Domain:     role.Domain,
 			Name:       role.Name,
-			UpdateTime: role.UpdateTime.Unix(),
+			UpdateTime: role.UpdateTime,
 		},
 	}, nil
 }
@@ -78,8 +78,30 @@ func (s *DomainRoleService) DeleteRole(ctx context.Context, req *v1.DeleteDomain
 }
 
 func (s *DomainRoleService) GetDomainRoles(ctx context.Context, req *v1.GetAllRolesReq) (*v1.GetAllRolesRpl, error) {
-	//TODO implement me
-	panic("implement me")
+	var resData []*v1.GetAllRolesRpl_Data
+	roles, err := s.uc.GetDomainRoles(ctx, req.DomainName)
+	if err != nil {
+		return &v1.GetAllRolesRpl{
+			Code: 1,
+			Msg:  "get domain roles err!",
+			Data: resData,
+		}, err
+	}
+
+	for _, role := range roles {
+		resData = append(resData, &v1.GetAllRolesRpl_Data{
+			Id:         role.Id,
+			CreateTime: role.CreateTime,
+			UpdateTime: role.UpdateTime,
+			Name:       role.Name,
+			Domain:     role.Domain,
+		})
+	}
+	return &v1.GetAllRolesRpl{
+		Code: 0,
+		Msg:  "ok!",
+		Data: resData,
+	}, nil
 }
 
 func (s *DomainRoleService) GetDomainSubsForRole(ctx context.Context, req *v1.GetDomainSubsForRoleReq) (*v1.GetDomainSubsForRoleRpl, error) {

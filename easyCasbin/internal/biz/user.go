@@ -80,7 +80,7 @@ func (User) TableName() string {
 	return "user"
 }
 
-//go:generate mockgen -destination=../mocks/mrepo/user.go -package=mrepo . UserRepo
+//go:generate mockgen -destination=user_mock.go -package=biz . UserRepo
 type UserRepo interface {
 	CreateUser(context.Context, *User) (*User, error)
 	ListUser(ctx context.Context, pageNum, pageSize int) ([]*User, int, error)

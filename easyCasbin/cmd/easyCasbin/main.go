@@ -1,7 +1,6 @@
 package main
 
 import (
-	zlog "easyCasbin/middleware/log"
 	"flag"
 	"os"
 
@@ -14,6 +13,7 @@ import (
 	_ "go.uber.org/automaxprocs"
 
 	"easyCasbin/internal/conf"
+	zlog "easyCasbin/middleware/log"
 )
 
 // go build -ldflags "-X main.Version=x.y.z"
@@ -82,7 +82,7 @@ func main() {
 	// 使用 zap 日志
 	zl := zlog.NewZapLogger(bc.Log)
 
-	app, cleanup, err := wireApp(bc.Server, bc.Data, zl)
+	app, cleanup, err := wireApp(bc.Server, bc.Casbin, bc.Data, zl)
 	//app, cleanup, err := wireApp(bc.Server, bc.Data, logger2)
 	if err != nil {
 		panic(err)

@@ -14,6 +14,7 @@ import (
 	"github.com/go-kratos/swagger-api/openapiv2"
 	jwtv4 "github.com/golang-jwt/jwt/v4"
 
+	cv1 "easyCasbin/api/casbin_rule/v1"
 	db "easyCasbin/api/db"
 	rv1 "easyCasbin/api/role/v1"
 	uv1 "easyCasbin/api/user/v1"
@@ -38,7 +39,10 @@ func NewWhiteListMatcher(w string) selector.MatchFunc {
 }
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Server, us *service.UserService, rs *service.DomainRoleService,
+func NewHTTPServer(c *conf.Server,
+	us *service.UserService,
+	rs *service.DomainRoleService,
+	cs *service.CasbinRuleService,
 	ds *service.DbIniterService, logger log.Logger) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
@@ -75,5 +79,6 @@ func NewHTTPServer(c *conf.Server, us *service.UserService, rs *service.DomainRo
 	uv1.RegisterUserHTTPServer(srv, us)
 	db.RegisterInitDBHTTPServer(srv, ds)
 	rv1.RegisterDomainRoleHTTPServer(srv, rs)
+	cv1.RegisterCasbinRuleHTTPServer(srv, cs)
 	return srv
 }

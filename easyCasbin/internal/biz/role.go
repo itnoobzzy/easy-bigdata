@@ -18,6 +18,7 @@ func (Role) TableName() string {
 	return "role"
 }
 
+//go:generate mockgen -destination=role_mock.go -package=biz . DomainRoleRepo
 type DomainRoleRepo interface {
 	// AddDomainRole 添加域角色
 	AddDomainRole(ctx context.Context, domain, role string) (*Role, error)
@@ -26,7 +27,7 @@ type DomainRoleRepo interface {
 	// DeleteDomainRole 删除域角色
 	DeleteDomainRole(ctx context.Context, domain, role string) (bool, error)
 	// GetDomainRoles 获取指定域下所有角色
-	GetDomainRoles(ctx context.Context, domain string) ([]Role, error)
+	GetDomainRoles(ctx context.Context, domain string) ([]*Role, error)
 	// CheckDomainRole 校验域角色是否存在
 	CheckDomainRole(ctx context.Context, domain, role string) (bool, error)
 
@@ -44,7 +45,7 @@ type DomainRoleUseCase struct {
 	log  *log.Helper
 }
 
-func NewDomainRepoUseCase(repo DomainRoleRepo, logger log.Logger) *DomainRoleUseCase {
+func NewDomainRoleUseCase(repo DomainRoleRepo, logger log.Logger) *DomainRoleUseCase {
 	return &DomainRoleUseCase{repo: repo, log: log.NewHelper(logger)}
 }
 
@@ -60,8 +61,8 @@ func (uc *DomainRoleUseCase) AddDomainRole(ctx context.Context, domain, role str
 	if err != nil {
 		return nil, err
 	}
-	return &DomainRoleResponse{Id: domainRole.ID, Name: domainRole.Name,
-		Domain: domainRole.Domain, CreateTime: domainRole.CreatedAt}, nil
+	return &DomainRoleResponse{Id: int64(domainRole.ID), Name: domainRole.Name,
+		Domain: domainRole.Domain, CreateTime: domainRole.CreatedAt.Unix()}, nil
 }
 
 // UpdateDomainRoleInfo UpdateRoleInfo 更新域角色，同一个域下角色名不能重复
@@ -78,11 +79,30 @@ func (uc *DomainRoleUseCase) UpdateDomainRoleInfo(ctx context.Context, domain, o
 	if err != nil {
 		return nil, err
 	}
-	return &DomainRoleResponse{Id: domainRole.ID, Name: domainRole.Name,
-		Domain: domainRole.Domain, UpdateTime: domainRole.UpdatedAt}, nil
+	return &DomainRoleResponse{Id: int64(domainRole.ID), Name: domainRole.Name,
+		Domain: domainRole.Domain, UpdateTime: domainRole.UpdatedAt.Unix()}, nil
 }
 
 // DeleteDomainRole 删除域角色，同时需要删除域角色对应的所有权限信息
 func (uc *DomainRoleUseCase) DeleteDomainRole(ctx context.Context, domain, role string) (bool, error) {
 	return uc.repo.DeleteDomainRole(ctx, domain, role)
+}
+
+// GetDomainRoles 查询域下所有角色
+func (uc *DomainRoleUseCase) GetDomainRoles(ctx context.Context, domain string) ([]*DomainRoleResponse, error) {
+	roles, err := uc.repo.GetDomainRoles(ctx, domain)
+	if err != nil {
+		return nil, err
+	}
+	var domainRoles []*DomainRoleResponse
+	for _, role := range roles {
+		domainRoles = append(domainRoles, &DomainRoleResponse{
+			Id:         int64(role.ID),
+			Name:       role.Name,
+			Domain:     role.Domain,
+			CreateTime: role.CreatedAt.Unix(),
+			UpdateTime: role.UpdatedAt.Unix(),
+		})
+	}
+	return domainRoles, nil
 }

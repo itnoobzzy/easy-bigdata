@@ -7,7 +7,7 @@ import (
 	"easyCasbin/utils"
 )
 
-//go:generate mockgen -destination=../mocks/mrepo/encryt.go -package=mrepo . EncryptService
+//go:generate mockgen -destination=encryt_mock.go -package=biz . EncryptService
 type EncryptService interface {
 	// CheckPassword 校验密码
 	CheckPassword(ctx context.Context, pwd, encryptedPassword string) bool

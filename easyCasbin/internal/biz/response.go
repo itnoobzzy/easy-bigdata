@@ -1,7 +1,5 @@
 package biz
 
-import "time"
-
 type UserInfoResponse struct {
 	Id       int64
 	Mobile   string
@@ -19,10 +17,10 @@ type LoginResponse struct {
 */
 
 type DomainRoleResponse struct {
-	Id         uint
+	Id         int64
 	Name       string
 	Domain     string
-	CreateTime time.Time
-	UpdateTime time.Time
-	DeleteTime time.Time
+	CreateTime int64
+	UpdateTime int64
+	DeleteTime int64
 }

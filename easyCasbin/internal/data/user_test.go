@@ -2,9 +2,7 @@ package data
 
 import (
 	"context"
-	v1 "easyCasbin/api/user/v1"
-	"easyCasbin/internal/biz"
-	"easyCasbin/internal/conf"
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-redis/redis/v8"
 	"github.com/golang/protobuf/ptypes/duration"
 	"github.com/stretchr/testify/assert"
@@ -12,7 +10,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/go-kratos/kratos/v2/log"
+	v1 "easyCasbin/api/user/v1"
+	"easyCasbin/internal/biz"
+	"easyCasbin/internal/conf"
 )
 
 var (
@@ -47,6 +47,7 @@ func TestMain(m *testing.M) {
 
 func TestUserRepo_CreateUser(t *testing.T) {
 	ctx := context.Background()
+	Mobile := "17720495379"
 	repo := NewUserRepo(&Data{
 		db:  tdb,
 		rdb: trdb,
@@ -68,7 +69,7 @@ func TestUserRepo_CreateUser(t *testing.T) {
 			user: &biz.User{
 				Username: "zzy",
 				NickName: "志勇",
-				Mobile:   "17720495379",
+				Mobile:   Mobile,
 				Password: "123",
 				Active:   0,
 			},
@@ -83,7 +84,7 @@ func TestUserRepo_CreateUser(t *testing.T) {
 			user: &biz.User{
 				Username: "zzy",
 				NickName: "志勇",
-				Mobile:   "17720495379",
+				Mobile:   Mobile,
 				Password: "123",
 				Active:   0,
 			},

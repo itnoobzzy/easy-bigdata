@@ -23,7 +23,7 @@ import (
 // Injectors from wire.go:
 
 // wireApp init kratos application.
-func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*kratos.App, func(), error) {
+func wireApp(confServer *conf.Server, casbin *conf.Casbin, confData *conf.Data, logger log.Logger) (*kratos.App, func(), error) {
 	db := data.NewDB(confData)
 	client := data.NewRedis(confData)
 	dataData, cleanup, err := data.NewData(confData, logger, db, client)
@@ -34,13 +34,16 @@ func wireApp(confServer *conf.Server, confData *conf.Data, logger log.Logger) (*
 	userUsecase := biz.NewUserUsecase(userRepo, logger, confServer)
 	userService := service.NewUserService(userUsecase, logger, confServer)
 	domainRoleRepo := data.NewRoleRepo(dataData, logger)
-	domainRoleUseCase := biz.NewDomainRepoUseCase(domainRoleRepo, logger)
+	domainRoleUseCase := biz.NewDomainRoleUseCase(domainRoleRepo, logger)
 	domainRoleService := service.NewDomainRoleService(domainRoleUseCase, logger)
-	grpcServer := server.NewGRPCServer(confServer, userService, domainRoleService, logger)
+	casbinRuleRepo := data.NewCasbinRuleRepo(dataData, casbin, logger)
+	casbinRuleUseCase := biz.NewCasbinRuleUseCase(casbinRuleRepo, logger)
+	casbinRuleService := service.NewCasbinRuleService(casbinRuleUseCase, logger)
+	grpcServer := server.NewGRPCServer(confServer, userService, domainRoleService, casbinRuleService, logger)
 	dbIniterRepo := data.NewDbIniterRepo(dataData, logger)
 	dbIniterUsecase := biz.NewDbiniterUsecase(dbIniterRepo, logger)
 	dbIniterService := service.NewDbIniterService(dbIniterUsecase, logger)
-	httpServer := server.NewHTTPServer(confServer, userService, domainRoleService, dbIniterService, logger)
+	httpServer := server.NewHTTPServer(confServer, userService, domainRoleService, casbinRuleService, dbIniterService, logger)
 	app := newApp(logger, grpcServer, httpServer)
 	return app, func() {
 		cleanup()

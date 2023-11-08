@@ -29,7 +29,7 @@ func (r *roleRepo) AddDomainRole(ctx context.Context, domain, role string) (*biz
 	domainRole.Domain = domain
 	domainRole.IsDelete = 0
 	if err := r.data.db.Create(&domainRole).Error; err != nil {
-		return nil, err
+		return nil, v1.ErrorDomainRoleExist("domain role exist")
 	}
 	return &domainRole, nil
 }
@@ -60,9 +60,12 @@ func (r *roleRepo) DeleteDomainRole(ctx context.Context, domain, role string) (b
 	return true, nil
 }
 
-func (r *roleRepo) GetDomainRoles(ctx context.Context, domain string) ([]biz.Role, error) {
-	//TODO implement me
-	panic("implement me")
+func (r *roleRepo) GetDomainRoles(ctx context.Context, domain string) ([]*biz.Role, error) {
+	var roles []*biz.Role
+	if err := r.data.db.Table("role").Where("domain=?", domain).Find(&roles).Error; err != nil {
+		return nil, err
+	}
+	return roles, nil
 }
 
 // CheckDomainRole 校验域角色是否存在

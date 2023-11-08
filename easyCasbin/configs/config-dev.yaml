@@ -36,3 +36,5 @@ log:
   max_age: 30
   show_line: true
   log_in_console: true
+casbin:
+  rbac_conf_path: /Users/zhouzhiyong/Desktop/easy-bigdata/easyCasbin/casbin_rbac_domain.conf

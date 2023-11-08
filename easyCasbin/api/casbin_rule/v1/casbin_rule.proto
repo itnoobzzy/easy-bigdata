@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package api.casbin_rule.v1;
+
+import "validate/validate.proto";
+import "google/protobuf/empty.proto";
+import "errors/errors.proto";
+import "google/api/annotations.proto";
+
+option go_package = "easyCasbin/api/casbin_rule/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.casbin_rule.v1";
+
+service CasbinRule {
+	// 获取所有鉴权主体
+	rpc GetAllSubjects(google.protobuf.Empty) returns (GetAllSubjectsRpl) {
+		option (google.api.http) = {
+			get: "/easyCasbin/api/casbin_rule/v1/subs"
+		};
+	};
+}
+
+message GetAllSubjectsRpl {
+	message Data {
+		string sub = 1;
+	}
+	uint32 code = 1;
+	string msg = 2;
+	repeated Data data = 3;
+}
+
+

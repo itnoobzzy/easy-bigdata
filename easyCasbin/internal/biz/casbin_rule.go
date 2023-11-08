@@ -1,6 +1,8 @@
 package biz
 
 import (
+	"context"
+	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gorm"
 )
 
@@ -18,4 +20,24 @@ type CasbinRule struct {
 
 func (CasbinRule) TableName() string {
 	return "casbin_rule"
+}
+
+type CasbinRuleRepo interface {
+	// GetAllSubjects 获取所有鉴权主体
+	GetAllSubjects(ctx context.Context) interface{}
+
+	// GetRolesForUserInDomain 查询用户在域上的角色
+	GetRolesForUserInDomain(ctx context.Context, username, domain string) (roles []string, err error)
+}
+
+type CasbinRuleUseCase struct {
+	repo CasbinRuleRepo
+	log  *log.Helper
+}
+
+func NewCasbinRuleUseCase(repo CasbinRuleRepo, logger log.Logger) *CasbinRuleUseCase {
+	return &CasbinRuleUseCase{
+		repo: repo,
+		log:  log.NewHelper(logger),
+	}
 }

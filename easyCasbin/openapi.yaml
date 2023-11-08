@@ -6,6 +6,19 @@ info:
     title: ""
     version: 0.0.1
 paths:
+    /easyCasbin/api/casbin_rule/v1/subs:
+        get:
+            tags:
+                - CasbinRule
+            description: 获取所有鉴权主体
+            operationId: CasbinRule_GetAllSubjects
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.casbin_rule.v1.GetAllSubjectsRpl'
     /easyCasbin/api/v1/domain_role:
         put:
             tags:
@@ -324,6 +337,23 @@ paths:
                                 $ref: '#/components/schemas/db.init.InitRpl'
 components:
     schemas:
+        api.casbin_rule.v1.GetAllSubjectsRpl:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: uint32
+                msg:
+                    type: string
+                data:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.casbin_rule.v1.GetAllSubjectsRpl_Data'
+        api.casbin_rule.v1.GetAllSubjectsRpl_Data:
+            type: object
+            properties:
+                sub:
+                    type: string
         api.role.v1.AddDomainRoleReq:
             type: object
             properties:
@@ -545,6 +575,7 @@ components:
                 message:
                     type: string
 tags:
+    - name: CasbinRule
     - name: DomainRole
     - name: InitDB
     - name: User

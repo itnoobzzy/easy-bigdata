@@ -9,13 +9,12 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"easyCasbin/internal/conf"
-	"easyCasbin/internal/mocks/mrepo"
 )
 
 func TestUserUseCase_login(t *testing.T) {
 	controller := gomock.NewController(t)
-	repo := mrepo.NewMockUserRepo(controller)
-	encryptService := mrepo.NewMockEncryptService(controller)
+	repo := NewMockUserRepo(controller)
+	encryptService := NewMockEncryptService(controller)
 
 	userUseCase := NewUserUsecase(repo, log.DefaultLogger, &conf.Server{
 		Jwt: &conf.Server_JWT{
