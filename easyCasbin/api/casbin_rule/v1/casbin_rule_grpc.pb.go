@@ -20,7 +20,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	CasbinRule_GetAllSubjects_FullMethodName = "/api.casbin_rule.v1.CasbinRule/GetAllSubjects"
+	CasbinRule_GetAllSubjects_FullMethodName    = "/api.casbin_rule.v1.CasbinRule/GetAllSubjects"
+	CasbinRule_DeleteDomain_FullMethodName      = "/api.casbin_rule.v1.CasbinRule/DeleteDomain"
+	CasbinRule_BatchEnforce_FullMethodName      = "/api.casbin_rule.v1.CasbinRule/BatchEnforce"
+	CasbinRule_AddPermissions_FullMethodName    = "/api.casbin_rule.v1.CasbinRule/AddPermissions"
+	CasbinRule_GetPermissions_FullMethodName    = "/api.casbin_rule.v1.CasbinRule/GetPermissions"
+	CasbinRule_UpdatePermissions_FullMethodName = "/api.casbin_rule.v1.CasbinRule/UpdatePermissions"
+	CasbinRule_DeletePermissions_FullMethodName = "/api.casbin_rule.v1.CasbinRule/DeletePermissions"
 )
 
 // CasbinRuleClient is the client API for CasbinRule service.
@@ -29,6 +35,18 @@ const (
 type CasbinRuleClient interface {
 	// 获取所有鉴权主体
 	GetAllSubjects(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAllSubjectsRpl, error)
+	// 删除域规则
+	DeleteDomain(ctx context.Context, in *DeleteDomainReq, opts ...grpc.CallOption) (*DeleteDomainRpl, error)
+	// 批量校验权限，当有一条不通过时校验就不通过
+	BatchEnforce(ctx context.Context, in *BatchEnforceReq, opts ...grpc.CallOption) (*BatchEnforceRpl, error)
+	// 为鉴权主体批量添加权限
+	AddPermissions(ctx context.Context, in *AddPermissionsReq, opts ...grpc.CallOption) (*AddPermissionsRpl, error)
+	// 获取鉴权主体所有权限
+	GetPermissions(ctx context.Context, in *GetPermissionsReq, opts ...grpc.CallOption) (*GetPermissionsRpl, error)
+	// 为鉴权主体批量更新权限
+	UpdatePermissions(ctx context.Context, in *UpdatePermissionsReq, opts ...grpc.CallOption) (*UpdatePermissionsRpl, error)
+	// 为鉴权主体批量删除权限
+	DeletePermissions(ctx context.Context, in *DeletePermissionsReq, opts ...grpc.CallOption) (*DeletePermissionsRpl, error)
 }
 
 type casbinRuleClient struct {
@@ -48,12 +66,78 @@ func (c *casbinRuleClient) GetAllSubjects(ctx context.Context, in *emptypb.Empty
 	return out, nil
 }
 
+func (c *casbinRuleClient) DeleteDomain(ctx context.Context, in *DeleteDomainReq, opts ...grpc.CallOption) (*DeleteDomainRpl, error) {
+	out := new(DeleteDomainRpl)
+	err := c.cc.Invoke(ctx, CasbinRule_DeleteDomain_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *casbinRuleClient) BatchEnforce(ctx context.Context, in *BatchEnforceReq, opts ...grpc.CallOption) (*BatchEnforceRpl, error) {
+	out := new(BatchEnforceRpl)
+	err := c.cc.Invoke(ctx, CasbinRule_BatchEnforce_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *casbinRuleClient) AddPermissions(ctx context.Context, in *AddPermissionsReq, opts ...grpc.CallOption) (*AddPermissionsRpl, error) {
+	out := new(AddPermissionsRpl)
+	err := c.cc.Invoke(ctx, CasbinRule_AddPermissions_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *casbinRuleClient) GetPermissions(ctx context.Context, in *GetPermissionsReq, opts ...grpc.CallOption) (*GetPermissionsRpl, error) {
+	out := new(GetPermissionsRpl)
+	err := c.cc.Invoke(ctx, CasbinRule_GetPermissions_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *casbinRuleClient) UpdatePermissions(ctx context.Context, in *UpdatePermissionsReq, opts ...grpc.CallOption) (*UpdatePermissionsRpl, error) {
+	out := new(UpdatePermissionsRpl)
+	err := c.cc.Invoke(ctx, CasbinRule_UpdatePermissions_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *casbinRuleClient) DeletePermissions(ctx context.Context, in *DeletePermissionsReq, opts ...grpc.CallOption) (*DeletePermissionsRpl, error) {
+	out := new(DeletePermissionsRpl)
+	err := c.cc.Invoke(ctx, CasbinRule_DeletePermissions_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CasbinRuleServer is the server API for CasbinRule service.
 // All implementations must embed UnimplementedCasbinRuleServer
 // for forward compatibility
 type CasbinRuleServer interface {
 	// 获取所有鉴权主体
 	GetAllSubjects(context.Context, *emptypb.Empty) (*GetAllSubjectsRpl, error)
+	// 删除域规则
+	DeleteDomain(context.Context, *DeleteDomainReq) (*DeleteDomainRpl, error)
+	// 批量校验权限，当有一条不通过时校验就不通过
+	BatchEnforce(context.Context, *BatchEnforceReq) (*BatchEnforceRpl, error)
+	// 为鉴权主体批量添加权限
+	AddPermissions(context.Context, *AddPermissionsReq) (*AddPermissionsRpl, error)
+	// 获取鉴权主体所有权限
+	GetPermissions(context.Context, *GetPermissionsReq) (*GetPermissionsRpl, error)
+	// 为鉴权主体批量更新权限
+	UpdatePermissions(context.Context, *UpdatePermissionsReq) (*UpdatePermissionsRpl, error)
+	// 为鉴权主体批量删除权限
+	DeletePermissions(context.Context, *DeletePermissionsReq) (*DeletePermissionsRpl, error)
 	mustEmbedUnimplementedCasbinRuleServer()
 }
 
@@ -63,6 +147,24 @@ type UnimplementedCasbinRuleServer struct {
 
 func (UnimplementedCasbinRuleServer) GetAllSubjects(context.Context, *emptypb.Empty) (*GetAllSubjectsRpl, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllSubjects not implemented")
+}
+func (UnimplementedCasbinRuleServer) DeleteDomain(context.Context, *DeleteDomainReq) (*DeleteDomainRpl, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteDomain not implemented")
+}
+func (UnimplementedCasbinRuleServer) BatchEnforce(context.Context, *BatchEnforceReq) (*BatchEnforceRpl, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BatchEnforce not implemented")
+}
+func (UnimplementedCasbinRuleServer) AddPermissions(context.Context, *AddPermissionsReq) (*AddPermissionsRpl, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddPermissions not implemented")
+}
+func (UnimplementedCasbinRuleServer) GetPermissions(context.Context, *GetPermissionsReq) (*GetPermissionsRpl, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPermissions not implemented")
+}
+func (UnimplementedCasbinRuleServer) UpdatePermissions(context.Context, *UpdatePermissionsReq) (*UpdatePermissionsRpl, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdatePermissions not implemented")
+}
+func (UnimplementedCasbinRuleServer) DeletePermissions(context.Context, *DeletePermissionsReq) (*DeletePermissionsRpl, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeletePermissions not implemented")
 }
 func (UnimplementedCasbinRuleServer) mustEmbedUnimplementedCasbinRuleServer() {}
 
@@ -95,6 +197,114 @@ func _CasbinRule_GetAllSubjects_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CasbinRule_DeleteDomain_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteDomainReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CasbinRuleServer).DeleteDomain(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CasbinRule_DeleteDomain_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CasbinRuleServer).DeleteDomain(ctx, req.(*DeleteDomainReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CasbinRule_BatchEnforce_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatchEnforceReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CasbinRuleServer).BatchEnforce(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CasbinRule_BatchEnforce_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CasbinRuleServer).BatchEnforce(ctx, req.(*BatchEnforceReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CasbinRule_AddPermissions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddPermissionsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CasbinRuleServer).AddPermissions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CasbinRule_AddPermissions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CasbinRuleServer).AddPermissions(ctx, req.(*AddPermissionsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CasbinRule_GetPermissions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPermissionsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CasbinRuleServer).GetPermissions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CasbinRule_GetPermissions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CasbinRuleServer).GetPermissions(ctx, req.(*GetPermissionsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CasbinRule_UpdatePermissions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdatePermissionsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CasbinRuleServer).UpdatePermissions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CasbinRule_UpdatePermissions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CasbinRuleServer).UpdatePermissions(ctx, req.(*UpdatePermissionsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CasbinRule_DeletePermissions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeletePermissionsReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CasbinRuleServer).DeletePermissions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CasbinRule_DeletePermissions_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CasbinRuleServer).DeletePermissions(ctx, req.(*DeletePermissionsReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CasbinRule_ServiceDesc is the grpc.ServiceDesc for CasbinRule service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -105,6 +315,30 @@ var CasbinRule_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllSubjects",
 			Handler:    _CasbinRule_GetAllSubjects_Handler,
+		},
+		{
+			MethodName: "DeleteDomain",
+			Handler:    _CasbinRule_DeleteDomain_Handler,
+		},
+		{
+			MethodName: "BatchEnforce",
+			Handler:    _CasbinRule_BatchEnforce_Handler,
+		},
+		{
+			MethodName: "AddPermissions",
+			Handler:    _CasbinRule_AddPermissions_Handler,
+		},
+		{
+			MethodName: "GetPermissions",
+			Handler:    _CasbinRule_GetPermissions_Handler,
+		},
+		{
+			MethodName: "UpdatePermissions",
+			Handler:    _CasbinRule_UpdatePermissions_Handler,
+		},
+		{
+			MethodName: "DeletePermissions",
+			Handler:    _CasbinRule_DeletePermissions_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

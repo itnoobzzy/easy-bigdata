@@ -26,8 +26,8 @@ func (s *DomainRoleService) AddDomainRole(ctx context.Context, req *v1.AddDomain
 		return nil, err
 	}
 	return &v1.AddDomainRoleRpl{
-		Code: 0,
-		Msg:  "add domain role success!",
+		Code:    0,
+		Message: "add domain role success!",
 		Data: &v1.AddDomainRoleRpl_Data{
 			Id:        role.Id,
 			Domain:    role.Domain,
@@ -43,8 +43,8 @@ func (s *DomainRoleService) UpdateRoleInfo(ctx context.Context, req *v1.UpdateDo
 		return nil, err
 	}
 	return &v1.UpdateDomainRoleRpl{
-		Code: 0,
-		Msg:  "update domain role success!",
+		Code:    0,
+		Message: "update domain role success!",
 		Data: &v1.UpdateDomainRoleRpl_Data{
 			Id:         role.Id,
 			Domain:     role.Domain,
@@ -57,23 +57,19 @@ func (s *DomainRoleService) UpdateRoleInfo(ctx context.Context, req *v1.UpdateDo
 func (s *DomainRoleService) DeleteRole(ctx context.Context, req *v1.DeleteDomainRoleReq) (*v1.DeleteDomainRoleRpl, error) {
 	ok, err := s.uc.DeleteDomainRole(ctx, req.DomainName, req.RoleName)
 	if err != nil {
-		return &v1.DeleteDomainRoleRpl{
-			Code: 1,
-			Msg:  "delete domain role err!",
-			Data: &v1.DeleteDomainRoleRpl_Data{DeleteTime: time.Now().Unix()},
-		}, err
+		return nil, err
 	}
 	if !ok {
 		return &v1.DeleteDomainRoleRpl{
-			Code: 1,
-			Msg:  "delete domain role failed!",
-			Data: &v1.DeleteDomainRoleRpl_Data{DeleteTime: time.Now().Unix()},
+			Code:    1,
+			Message: "delete domain role failed!",
+			Data:    &v1.DeleteDomainRoleRpl_Data{DeleteTime: time.Now().Unix()},
 		}, nil
 	}
 	return &v1.DeleteDomainRoleRpl{
-		Code: 0,
-		Msg:  "delete domain role success!",
-		Data: &v1.DeleteDomainRoleRpl_Data{DeleteTime: time.Now().Unix()},
+		Code:    0,
+		Message: "delete domain role success!",
+		Data:    &v1.DeleteDomainRoleRpl_Data{DeleteTime: time.Now().Unix()},
 	}, nil
 }
 
@@ -81,11 +77,7 @@ func (s *DomainRoleService) GetDomainRoles(ctx context.Context, req *v1.GetAllRo
 	var resData []*v1.GetAllRolesRpl_Data
 	roles, err := s.uc.GetDomainRoles(ctx, req.DomainName)
 	if err != nil {
-		return &v1.GetAllRolesRpl{
-			Code: 1,
-			Msg:  "get domain roles err!",
-			Data: resData,
-		}, err
+		return nil, err
 	}
 
 	for _, role := range roles {
@@ -98,9 +90,9 @@ func (s *DomainRoleService) GetDomainRoles(ctx context.Context, req *v1.GetAllRo
 		})
 	}
 	return &v1.GetAllRolesRpl{
-		Code: 0,
-		Msg:  "ok!",
-		Data: resData,
+		Code:    0,
+		Message: "ok!",
+		Data:    resData,
 	}, nil
 }
 

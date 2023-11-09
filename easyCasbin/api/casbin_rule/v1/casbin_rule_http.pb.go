@@ -20,16 +20,40 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationCasbinRuleAddPermissions = "/api.casbin_rule.v1.CasbinRule/AddPermissions"
+const OperationCasbinRuleBatchEnforce = "/api.casbin_rule.v1.CasbinRule/BatchEnforce"
+const OperationCasbinRuleDeleteDomain = "/api.casbin_rule.v1.CasbinRule/DeleteDomain"
+const OperationCasbinRuleDeletePermissions = "/api.casbin_rule.v1.CasbinRule/DeletePermissions"
 const OperationCasbinRuleGetAllSubjects = "/api.casbin_rule.v1.CasbinRule/GetAllSubjects"
+const OperationCasbinRuleGetPermissions = "/api.casbin_rule.v1.CasbinRule/GetPermissions"
+const OperationCasbinRuleUpdatePermissions = "/api.casbin_rule.v1.CasbinRule/UpdatePermissions"
 
 type CasbinRuleHTTPServer interface {
+	// AddPermissions 为鉴权主体批量添加权限
+	AddPermissions(context.Context, *AddPermissionsReq) (*AddPermissionsRpl, error)
+	// BatchEnforce 批量校验权限，当有一条不通过时校验就不通过
+	BatchEnforce(context.Context, *BatchEnforceReq) (*BatchEnforceRpl, error)
+	// DeleteDomain 删除域规则
+	DeleteDomain(context.Context, *DeleteDomainReq) (*DeleteDomainRpl, error)
+	// DeletePermissions 为鉴权主体批量删除权限
+	DeletePermissions(context.Context, *DeletePermissionsReq) (*DeletePermissionsRpl, error)
 	// GetAllSubjects 获取所有鉴权主体
 	GetAllSubjects(context.Context, *emptypb.Empty) (*GetAllSubjectsRpl, error)
+	// GetPermissions 获取鉴权主体所有权限
+	GetPermissions(context.Context, *GetPermissionsReq) (*GetPermissionsRpl, error)
+	// UpdatePermissions 为鉴权主体批量更新权限
+	UpdatePermissions(context.Context, *UpdatePermissionsReq) (*UpdatePermissionsRpl, error)
 }
 
 func RegisterCasbinRuleHTTPServer(s *http.Server, srv CasbinRuleHTTPServer) {
 	r := s.Route("/")
 	r.GET("/easyCasbin/api/casbin_rule/v1/subs", _CasbinRule_GetAllSubjects0_HTTP_Handler(srv))
+	r.DELETE("/easyCasbin/api/casbin_rule/v1/domain", _CasbinRule_DeleteDomain0_HTTP_Handler(srv))
+	r.POST("/easyCasbin/api/casbin_rule/v1/enforce_policies", _CasbinRule_BatchEnforce0_HTTP_Handler(srv))
+	r.POST("/easyCasbin/api/casbin_rule/v1/permissions", _CasbinRule_AddPermissions0_HTTP_Handler(srv))
+	r.GET("/easyCasbin/api/casbin_rule/v1/permissions", _CasbinRule_GetPermissions0_HTTP_Handler(srv))
+	r.PUT("/easyCasbin/api/casbin_rule/v1/permissions", _CasbinRule_UpdatePermissions0_HTTP_Handler(srv))
+	r.POST("/easyCasbin/api/casbin_rule/v1/del_permissions", _CasbinRule_DeletePermissions0_HTTP_Handler(srv))
 }
 
 func _CasbinRule_GetAllSubjects0_HTTP_Handler(srv CasbinRuleHTTPServer) func(ctx http.Context) error {
@@ -51,8 +75,140 @@ func _CasbinRule_GetAllSubjects0_HTTP_Handler(srv CasbinRuleHTTPServer) func(ctx
 	}
 }
 
+func _CasbinRule_DeleteDomain0_HTTP_Handler(srv CasbinRuleHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in DeleteDomainReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCasbinRuleDeleteDomain)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteDomain(ctx, req.(*DeleteDomainReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*DeleteDomainRpl)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _CasbinRule_BatchEnforce0_HTTP_Handler(srv CasbinRuleHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in BatchEnforceReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCasbinRuleBatchEnforce)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.BatchEnforce(ctx, req.(*BatchEnforceReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*BatchEnforceRpl)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _CasbinRule_AddPermissions0_HTTP_Handler(srv CasbinRuleHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AddPermissionsReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCasbinRuleAddPermissions)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AddPermissions(ctx, req.(*AddPermissionsReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AddPermissionsRpl)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _CasbinRule_GetPermissions0_HTTP_Handler(srv CasbinRuleHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetPermissionsReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCasbinRuleGetPermissions)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetPermissions(ctx, req.(*GetPermissionsReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetPermissionsRpl)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _CasbinRule_UpdatePermissions0_HTTP_Handler(srv CasbinRuleHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in UpdatePermissionsReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCasbinRuleUpdatePermissions)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.UpdatePermissions(ctx, req.(*UpdatePermissionsReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*UpdatePermissionsRpl)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _CasbinRule_DeletePermissions0_HTTP_Handler(srv CasbinRuleHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in DeletePermissionsReq
+		if err := ctx.Bind(&in); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCasbinRuleDeletePermissions)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeletePermissions(ctx, req.(*DeletePermissionsReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*DeletePermissionsRpl)
+		return ctx.Result(200, reply)
+	}
+}
+
 type CasbinRuleHTTPClient interface {
+	AddPermissions(ctx context.Context, req *AddPermissionsReq, opts ...http.CallOption) (rsp *AddPermissionsRpl, err error)
+	BatchEnforce(ctx context.Context, req *BatchEnforceReq, opts ...http.CallOption) (rsp *BatchEnforceRpl, err error)
+	DeleteDomain(ctx context.Context, req *DeleteDomainReq, opts ...http.CallOption) (rsp *DeleteDomainRpl, err error)
+	DeletePermissions(ctx context.Context, req *DeletePermissionsReq, opts ...http.CallOption) (rsp *DeletePermissionsRpl, err error)
 	GetAllSubjects(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetAllSubjectsRpl, err error)
+	GetPermissions(ctx context.Context, req *GetPermissionsReq, opts ...http.CallOption) (rsp *GetPermissionsRpl, err error)
+	UpdatePermissions(ctx context.Context, req *UpdatePermissionsReq, opts ...http.CallOption) (rsp *UpdatePermissionsRpl, err error)
 }
 
 type CasbinRuleHTTPClientImpl struct {
@@ -63,6 +219,58 @@ func NewCasbinRuleHTTPClient(client *http.Client) CasbinRuleHTTPClient {
 	return &CasbinRuleHTTPClientImpl{client}
 }
 
+func (c *CasbinRuleHTTPClientImpl) AddPermissions(ctx context.Context, in *AddPermissionsReq, opts ...http.CallOption) (*AddPermissionsRpl, error) {
+	var out AddPermissionsRpl
+	pattern := "/easyCasbin/api/casbin_rule/v1/permissions"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationCasbinRuleAddPermissions))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *CasbinRuleHTTPClientImpl) BatchEnforce(ctx context.Context, in *BatchEnforceReq, opts ...http.CallOption) (*BatchEnforceRpl, error) {
+	var out BatchEnforceRpl
+	pattern := "/easyCasbin/api/casbin_rule/v1/enforce_policies"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationCasbinRuleBatchEnforce))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *CasbinRuleHTTPClientImpl) DeleteDomain(ctx context.Context, in *DeleteDomainReq, opts ...http.CallOption) (*DeleteDomainRpl, error) {
+	var out DeleteDomainRpl
+	pattern := "/easyCasbin/api/casbin_rule/v1/domain"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationCasbinRuleDeleteDomain))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "DELETE", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *CasbinRuleHTTPClientImpl) DeletePermissions(ctx context.Context, in *DeletePermissionsReq, opts ...http.CallOption) (*DeletePermissionsRpl, error) {
+	var out DeletePermissionsRpl
+	pattern := "/easyCasbin/api/casbin_rule/v1/del_permissions"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationCasbinRuleDeletePermissions))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *CasbinRuleHTTPClientImpl) GetAllSubjects(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetAllSubjectsRpl, error) {
 	var out GetAllSubjectsRpl
 	pattern := "/easyCasbin/api/casbin_rule/v1/subs"
@@ -70,6 +278,32 @@ func (c *CasbinRuleHTTPClientImpl) GetAllSubjects(ctx context.Context, in *empty
 	opts = append(opts, http.Operation(OperationCasbinRuleGetAllSubjects))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *CasbinRuleHTTPClientImpl) GetPermissions(ctx context.Context, in *GetPermissionsReq, opts ...http.CallOption) (*GetPermissionsRpl, error) {
+	var out GetPermissionsRpl
+	pattern := "/easyCasbin/api/casbin_rule/v1/permissions"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationCasbinRuleGetPermissions))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *CasbinRuleHTTPClientImpl) UpdatePermissions(ctx context.Context, in *UpdatePermissionsReq, opts ...http.CallOption) (*UpdatePermissionsRpl, error) {
+	var out UpdatePermissionsRpl
+	pattern := "/easyCasbin/api/casbin_rule/v1/permissions"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationCasbinRuleUpdatePermissions))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "PUT", path, in, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

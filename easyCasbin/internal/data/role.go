@@ -60,6 +60,7 @@ func (r *roleRepo) DeleteDomainRole(ctx context.Context, domain, role string) (b
 	return true, nil
 }
 
+// GetDomainRoles 获取指定域下所有角色
 func (r *roleRepo) GetDomainRoles(ctx context.Context, domain string) ([]*biz.Role, error) {
 	var roles []*biz.Role
 	if err := r.data.db.Table("role").Where("domain=?", domain).Find(&roles).Error; err != nil {
@@ -77,9 +78,17 @@ func (r *roleRepo) CheckDomainRole(ctx context.Context, domain, role string) (bo
 	return true, nil
 }
 
+// GetAllDomains 获取所有域
 func (r *roleRepo) GetAllDomains(ctx context.Context) ([]string, error) {
-	//TODO implement me
-	panic("implement me")
+	var roleList []biz.Role
+	domains := make([]string, 0)
+	if err := r.data.db.Distinct("Domain").Where("deleted_at is null").Find(&roleList).Error; err != nil {
+		return make([]string, 0), err
+	}
+	for _, role := range roleList {
+		domains = append(domains, role.Domain)
+	}
+	return domains, nil
 }
 
 func (r *roleRepo) CheckDomains(ctx context.Context, domains []string) (bool, error) {

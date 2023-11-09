@@ -6,6 +6,120 @@ info:
     title: ""
     version: 0.0.1
 paths:
+    /easyCasbin/api/casbin_rule/v1/del_permissions:
+        post:
+            tags:
+                - CasbinRule
+            description: 为鉴权主体批量删除权限
+            operationId: CasbinRule_DeletePermissions
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.casbin_rule.v1.DeletePermissionsReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.casbin_rule.v1.DeletePermissionsRpl'
+    /easyCasbin/api/casbin_rule/v1/domain:
+        delete:
+            tags:
+                - CasbinRule
+            description: 删除域规则
+            operationId: CasbinRule_DeleteDomain
+            parameters:
+                - name: domain
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.casbin_rule.v1.DeleteDomainRpl'
+    /easyCasbin/api/casbin_rule/v1/enforce_policies:
+        post:
+            tags:
+                - CasbinRule
+            description: 批量校验权限，当有一条不通过时校验就不通过
+            operationId: CasbinRule_BatchEnforce
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.casbin_rule.v1.BatchEnforceReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.casbin_rule.v1.BatchEnforceRpl'
+    /easyCasbin/api/casbin_rule/v1/permissions:
+        get:
+            tags:
+                - CasbinRule
+            description: 获取鉴权主体所有权限
+            operationId: CasbinRule_GetPermissions
+            parameters:
+                - name: sub
+                  in: query
+                  schema:
+                    type: string
+                - name: domain
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.casbin_rule.v1.GetPermissionsRpl'
+        put:
+            tags:
+                - CasbinRule
+            description: 为鉴权主体批量更新权限
+            operationId: CasbinRule_UpdatePermissions
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.casbin_rule.v1.UpdatePermissionsReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.casbin_rule.v1.UpdatePermissionsRpl'
+        post:
+            tags:
+                - CasbinRule
+            description: 为鉴权主体批量添加权限
+            operationId: CasbinRule_AddPermissions
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.casbin_rule.v1.AddPermissionsReq'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.casbin_rule.v1.AddPermissionsRpl'
     /easyCasbin/api/casbin_rule/v1/subs:
         get:
             tags:
@@ -337,13 +451,70 @@ paths:
                                 $ref: '#/components/schemas/db.init.InitRpl'
 components:
     schemas:
+        api.casbin_rule.v1.AddPermissionsReq:
+            type: object
+            properties:
+                policies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.casbin_rule.v1.Policy'
+        api.casbin_rule.v1.AddPermissionsRpl:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: uint32
+                message:
+                    type: string
+        api.casbin_rule.v1.BatchEnforceReq:
+            type: object
+            properties:
+                policies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.casbin_rule.v1.Policy'
+        api.casbin_rule.v1.BatchEnforceRpl:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: uint32
+                message:
+                    type: string
+                data:
+                    type: array
+                    items:
+                        type: boolean
+        api.casbin_rule.v1.DeleteDomainRpl:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: uint32
+                message:
+                    type: string
+        api.casbin_rule.v1.DeletePermissionsReq:
+            type: object
+            properties:
+                policies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.casbin_rule.v1.Policy'
+        api.casbin_rule.v1.DeletePermissionsRpl:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: uint32
+                message:
+                    type: string
         api.casbin_rule.v1.GetAllSubjectsRpl:
             type: object
             properties:
                 code:
                     type: integer
                     format: uint32
-                msg:
+                message:
                     type: string
                 data:
                     type: array
@@ -353,6 +524,53 @@ components:
             type: object
             properties:
                 sub:
+                    type: string
+        api.casbin_rule.v1.GetPermissionsRpl:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: uint32
+                message:
+                    type: string
+                data:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.casbin_rule.v1.GetPermissionsRpl_Data'
+        api.casbin_rule.v1.GetPermissionsRpl_Data:
+            type: object
+            properties:
+                resource:
+                    type: string
+                action:
+                    type: string
+        api.casbin_rule.v1.Policy:
+            type: object
+            properties:
+                name:
+                    type: string
+                domain:
+                    type: string
+                resource:
+                    type: string
+                action:
+                    type: string
+                eft:
+                    type: string
+        api.casbin_rule.v1.UpdatePermissionsReq:
+            type: object
+            properties:
+                policies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.casbin_rule.v1.Policy'
+        api.casbin_rule.v1.UpdatePermissionsRpl:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: uint32
+                message:
                     type: string
         api.role.v1.AddDomainRoleReq:
             type: object
@@ -367,7 +585,7 @@ components:
                 code:
                     type: integer
                     format: uint32
-                msg:
+                message:
                     type: string
                 data:
                     $ref: '#/components/schemas/api.role.v1.AddDomainRoleRpl_Data'
@@ -400,7 +618,7 @@ components:
                 code:
                     type: integer
                     format: uint32
-                msg:
+                message:
                     type: string
         api.role.v1.DeleteDomainRoleRpl:
             type: object
@@ -408,7 +626,7 @@ components:
                 code:
                     type: integer
                     format: uint32
-                msg:
+                message:
                     type: string
                 data:
                     $ref: '#/components/schemas/api.role.v1.DeleteDomainRoleRpl_Data'
@@ -423,7 +641,7 @@ components:
                 code:
                     type: integer
                     format: uint32
-                msg:
+                message:
                     type: string
         api.role.v1.GetAllRolesRpl:
             type: object
@@ -431,7 +649,7 @@ components:
                 code:
                     type: integer
                     format: uint32
-                msg:
+                message:
                     type: string
                 data:
                     type: array
@@ -456,7 +674,7 @@ components:
                 code:
                     type: integer
                     format: uint32
-                msg:
+                message:
                     type: string
                 data:
                     type: array
@@ -482,7 +700,7 @@ components:
                 code:
                     type: integer
                     format: uint32
-                msg:
+                message:
                     type: string
                 data:
                     $ref: '#/components/schemas/api.role.v1.UpdateDomainRoleRpl_Data'

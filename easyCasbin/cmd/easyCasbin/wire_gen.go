@@ -38,7 +38,7 @@ func wireApp(confServer *conf.Server, casbin *conf.Casbin, confData *conf.Data, 
 	domainRoleService := service.NewDomainRoleService(domainRoleUseCase, logger)
 	casbinRuleRepo := data.NewCasbinRuleRepo(dataData, casbin, logger)
 	casbinRuleUseCase := biz.NewCasbinRuleUseCase(casbinRuleRepo, logger)
-	casbinRuleService := service.NewCasbinRuleService(casbinRuleUseCase, logger)
+	casbinRuleService := service.NewCasbinRuleService(casbinRuleUseCase, logger, domainRoleUseCase)
 	grpcServer := server.NewGRPCServer(confServer, userService, domainRoleService, casbinRuleService, logger)
 	dbIniterRepo := data.NewDbIniterRepo(dataData, logger)
 	dbIniterUsecase := biz.NewDbiniterUsecase(dbIniterRepo, logger)

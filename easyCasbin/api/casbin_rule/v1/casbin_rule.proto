@@ -11,11 +11,69 @@ option go_package = "easyCasbin/api/casbin_rule/v1;v1";
 option java_multiple_files = true;
 option java_package = "api.casbin_rule.v1";
 
+enum CasbinRuleError {
+	// 设置缺省错误码
+	option (errors.default_code) = 500;
+
+	// 内部错误
+	INTERNAL_ERR = 0 [(errors.code) = 500];
+	// 域不存在
+	DOMAIN_NOT_FOUND = 1 [(errors.code) = 404];
+	// 参数错误
+	INVALID_ARGS = 2 [(errors.code) = 400];
+}
+
 service CasbinRule {
 	// 获取所有鉴权主体
 	rpc GetAllSubjects(google.protobuf.Empty) returns (GetAllSubjectsRpl) {
 		option (google.api.http) = {
 			get: "/easyCasbin/api/casbin_rule/v1/subs"
+		};
+	};
+
+	// 删除域规则
+	rpc DeleteDomain(DeleteDomainReq) returns (DeleteDomainRpl) {
+		option (google.api.http) = {
+			delete: "/easyCasbin/api/casbin_rule/v1/domain"
+		};
+	};
+
+	// 批量校验权限，当有一条不通过时校验就不通过
+	rpc BatchEnforce(BatchEnforceReq) returns (BatchEnforceRpl) {
+		option (google.api.http) = {
+			post: "/easyCasbin/api/casbin_rule/v1/enforce_policies"
+			body: "*"
+		};
+	};
+
+	// 为鉴权主体批量添加权限
+	rpc AddPermissions(AddPermissionsReq) returns (AddPermissionsRpl) {
+		option (google.api.http) = {
+			post: "/easyCasbin/api/casbin_rule/v1/permissions"
+			body: "*"
+		};
+	};
+
+	// 获取鉴权主体所有权限
+	rpc GetPermissions(GetPermissionsReq) returns (GetPermissionsRpl) {
+		option (google.api.http) = {
+			get: "/easyCasbin/api/casbin_rule/v1/permissions"
+		};
+	};
+
+	// 为鉴权主体批量更新权限
+	rpc UpdatePermissions(UpdatePermissionsReq) returns (UpdatePermissionsRpl) {
+		option (google.api.http) = {
+			put: "/easyCasbin/api/casbin_rule/v1/permissions"
+			body: "*"
+		};
+	};
+
+	// 为鉴权主体批量删除权限
+	rpc DeletePermissions(DeletePermissionsReq) returns (DeletePermissionsRpl) {
+		option (google.api.http) = {
+			post: "/easyCasbin/api/casbin_rule/v1/del_permissions"
+			body: "*"
 		};
 	};
 }
@@ -25,8 +83,73 @@ message GetAllSubjectsRpl {
 		string sub = 1;
 	}
 	uint32 code = 1;
-	string msg = 2;
+	string message = 2;
 	repeated Data data = 3;
 }
 
+message DeleteDomainReq {
+	string domain = 1 [(validate.rules).string.min_len=1];
+}
+
+message DeleteDomainRpl {
+	uint32 code = 1;
+	string message = 2;
+}
+
+message Policy {
+	string name = 1 [(validate.rules).string.min_len=1];
+	string domain = 2 [(validate.rules).string.min_len=1];
+	string resource = 3 [(validate.rules).string.min_len=1];
+	string action = 4 [(validate.rules).string.min_len=1];
+	string eft = 5;
+}
+
+message BatchEnforceReq {
+	repeated Policy policies = 1 [(validate.rules).repeated.min_items=1];
+}
+
+message BatchEnforceRpl {
+	uint32 code = 1;
+	string message = 2;
+	repeated bool data = 3;
+}
+
+message AddPermissionsReq {
+	repeated Policy policies = 1 [(validate.rules).repeated.min_items=1];
+}
+
+message AddPermissionsRpl {
+	uint32 code = 1;
+	string message = 2;
+}
+
+message GetPermissionsReq {
+	string sub = 1;
+	string domain = 2;
+}
+message GetPermissionsRpl {
+	message Data {
+		string resource = 1;
+		string action = 2;
+	}
+	uint32 code = 1;
+	string message = 2;
+	repeated Data data = 3;
+}
+
+message UpdatePermissionsReq {
+	repeated Policy policies = 1 [(validate.rules).repeated.min_items=1];
+}
+message UpdatePermissionsRpl {
+	uint32 code = 1;
+	string message = 2;
+}
+
+message DeletePermissionsReq {
+	repeated Policy policies = 1 [(validate.rules).repeated.min_items=1];
+}
+message DeletePermissionsRpl {
+	uint32 code = 1;
+	string message = 2;
+}
 

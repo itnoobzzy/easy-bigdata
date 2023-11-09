@@ -64,7 +64,10 @@ func TestRoleRepo_AddDomainRole(t *testing.T) {
 			assert.Equal(t, item.role.Domain, role.Domain)
 		})
 	}
-	repo.DeleteDomainRole(ctx, domain, roleName)
+	_, err := repo.DeleteDomainRole(ctx, domain, roleName)
+	if err != nil {
+		return
+	}
 }
 
 func TestRoleRepo_CheckDomainRole(t *testing.T) {
@@ -121,7 +124,10 @@ func TestRoleRepo_UpdateDomainRole(t *testing.T) {
 		rdb: trdb,
 	}, log.DefaultLogger)
 
-	repo.AddDomainRole(ctx, domain, oldRole)
+	_, err := repo.AddDomainRole(ctx, domain, oldRole)
+	if err != nil {
+		return
+	}
 
 	cases := []struct {
 		name    string
@@ -157,7 +163,7 @@ func TestRoleRepo_UpdateDomainRole(t *testing.T) {
 		t.Run(item.name, func(t *testing.T) {
 
 			if item.name == "new role name exist" {
-				repo.AddDomainRole(ctx, domain, newRole)
+				_, err = repo.AddDomainRole(ctx, domain, newRole)
 			}
 
 			newRole, err := repo.UpdateDomainRole(ctx, item.domain, item.oldRole, item.newRole)
@@ -167,6 +173,51 @@ func TestRoleRepo_UpdateDomainRole(t *testing.T) {
 			assert.Equal(t, item.newRole, newRole.Name)
 		})
 	}
-	repo.DeleteDomainRole(ctx, domain, oldRole)
-	repo.DeleteDomainRole(ctx, domain, newRole)
+	_, err = repo.DeleteDomainRole(ctx, domain, oldRole)
+	_, err = repo.DeleteDomainRole(ctx, domain, newRole)
+}
+
+func TestRoleRepo_GetAllDomains(t *testing.T) {
+	ctx := context.Background()
+
+	repo := NewRoleRepo(&Data{
+		db:  tdb,
+		rdb: trdb,
+	}, log.DefaultLogger)
+
+	now := time.Now().Unix()
+	roleName := fmt.Sprintf("admin_%v", now)
+	domain := fmt.Sprintf("domain_%v", now)
+	_, err := repo.AddDomainRole(ctx, domain, roleName)
+	if err != nil {
+		return
+	}
+
+	cases := []struct {
+		name    string
+		wantErr assert.ErrorAssertionFunc
+		ctx     context.Context
+	}{
+		{
+			name: "normal",
+			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+				assert.NoError(t, err)
+				return true
+			},
+			ctx: ctx,
+		},
+	}
+	for _, item := range cases {
+		t.Run(item.name, func(t *testing.T) {
+			domains, err := repo.GetAllDomains(item.ctx)
+			if !item.wantErr(t, err) {
+				return
+			}
+			assert.NotEmpty(t, domains)
+		})
+	}
+	_, err = repo.DeleteDomainRole(ctx, domain, roleName)
+	if err != nil {
+		return
+	}
 }

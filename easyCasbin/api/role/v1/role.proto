@@ -86,7 +86,7 @@ message AddDomainRoleRpl {
 		string domain = 4;
 	}
 	uint32 code = 1;
-	string msg = 2;
+	string message = 2;
 	Data data = 3;
 }
 
@@ -104,7 +104,7 @@ message UpdateDomainRoleRpl {
 		string domain = 4;
 	}
 	uint32 code = 1;
-	string msg = 2;
+	string message = 2;
 	Data data = 3;
 }
 
@@ -118,7 +118,7 @@ message DeleteDomainRoleRpl {
 		int64 deleteTime = 1;
 	}
 	uint32 code = 1;
-	string msg = 2;
+	string message = 2;
 	Data data = 3;
 }
 
@@ -135,7 +135,7 @@ message GetAllRolesRpl {
 		string domain = 5;
 	}
 	uint32 code = 1;
-	string msg = 2;
+	string message = 2;
 	repeated Data data = 3;
 }
 
@@ -150,7 +150,7 @@ message AddRoleForSubInDomainReq {
 
 message AddRoleForSubInDomainRpl {
 	uint32 code = 1;
-	string msg = 2;
+	string message = 2;
 }
 
 message GetDomainSubsForRoleReq {
@@ -163,7 +163,7 @@ message GetDomainSubsForRoleRpl {
 		string sub = 1;
 	}
 	uint32 code = 1;
-	string msg = 2;
+	string message = 2;
 	repeated Data data = 3;
 }
 
@@ -178,5 +178,5 @@ message DeleteRoleForSubInDomainReq {
 
 message DeleteRoleForSubInDomainRpl {
 	uint32 code = 1;
-	string msg = 2;
+	string message = 2;
 }
