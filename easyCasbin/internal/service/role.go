@@ -2,11 +2,12 @@ package service
 
 import (
 	"context"
-	v1 "easyCasbin/api/role/v1"
-	"easyCasbin/internal/biz"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
+
+	v1 "easyCasbin/api/role/v1"
+	"easyCasbin/internal/biz"
 )
 
 type DomainRoleService struct {
@@ -14,12 +15,16 @@ type DomainRoleService struct {
 
 	uc  *biz.DomainRoleUseCase
 	log *log.Helper
+
+	// 依赖casbin_rule服务对权限信息的操作
+	cuc *biz.CasbinRuleUseCase
 }
 
-func NewDomainRoleService(uc *biz.DomainRoleUseCase, logger log.Logger) *DomainRoleService {
-	return &DomainRoleService{uc: uc, log: log.NewHelper(logger)}
+func NewDomainRoleService(uc *biz.DomainRoleUseCase, logger log.Logger, cuc *biz.CasbinRuleUseCase) *DomainRoleService {
+	return &DomainRoleService{uc: uc, log: log.NewHelper(logger), cuc: cuc}
 }
 
+// AddDomainRole 添加域角色
 func (s *DomainRoleService) AddDomainRole(ctx context.Context, req *v1.AddDomainRoleReq) (*v1.AddDomainRoleRpl, error) {
 	role, err := s.uc.AddDomainRole(ctx, req.DomainName, req.RoleName)
 	if err != nil {
@@ -37,6 +42,7 @@ func (s *DomainRoleService) AddDomainRole(ctx context.Context, req *v1.AddDomain
 	}, nil
 }
 
+// UpdateRoleInfo 更新域角色信息
 func (s *DomainRoleService) UpdateRoleInfo(ctx context.Context, req *v1.UpdateDomainRoleReq) (*v1.UpdateDomainRoleRpl, error) {
 	role, err := s.uc.UpdateDomainRoleInfo(ctx, req.DomainName, req.RoleName, req.NewRoleName)
 	if err != nil {
@@ -54,6 +60,7 @@ func (s *DomainRoleService) UpdateRoleInfo(ctx context.Context, req *v1.UpdateDo
 	}, nil
 }
 
+// DeleteRole 删除域角色，删除角色的同时将删除对应的权限规则
 func (s *DomainRoleService) DeleteRole(ctx context.Context, req *v1.DeleteDomainRoleReq) (*v1.DeleteDomainRoleRpl, error) {
 	ok, err := s.uc.DeleteDomainRole(ctx, req.DomainName, req.RoleName)
 	if err != nil {
@@ -73,6 +80,7 @@ func (s *DomainRoleService) DeleteRole(ctx context.Context, req *v1.DeleteDomain
 	}, nil
 }
 
+// GetDomainRoles 获取指定域下所有角色列表
 func (s *DomainRoleService) GetDomainRoles(ctx context.Context, req *v1.GetAllRolesReq) (*v1.GetAllRolesRpl, error) {
 	var resData []*v1.GetAllRolesRpl_Data
 	roles, err := s.uc.GetDomainRoles(ctx, req.DomainName)
@@ -96,11 +104,12 @@ func (s *DomainRoleService) GetDomainRoles(ctx context.Context, req *v1.GetAllRo
 	}, nil
 }
 
+// GetDomainSubsForRole 查询域角色下所有用户以及对应的权限
 func (s *DomainRoleService) GetDomainSubsForRole(ctx context.Context, req *v1.GetDomainSubsForRoleReq) (*v1.GetDomainSubsForRoleRpl, error) {
-	//TODO implement me
-	panic("implement me")
+	panic(1)
 }
 
+// AddRoleForSubInDomain 为用户添加域角色或者为角色继承另一个角色权限
 func (s *DomainRoleService) AddRoleForSubInDomain(ctx context.Context, req *v1.AddRoleForSubInDomainReq) (*v1.AddRoleForSubInDomainRpl, error) {
 	//TODO implement me
 	panic("implement me")

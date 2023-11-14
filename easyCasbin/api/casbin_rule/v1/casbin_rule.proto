@@ -124,8 +124,8 @@ message AddPermissionsRpl {
 }
 
 message GetPermissionsReq {
-	string sub = 1;
-	string domain = 2;
+	string sub = 1 [(validate.rules).string.min_len=1];
+	string domain = 2 [(validate.rules).string.min_len=1];
 }
 message GetPermissionsRpl {
 	message Data {
@@ -138,7 +138,8 @@ message GetPermissionsRpl {
 }
 
 message UpdatePermissionsReq {
-	repeated Policy policies = 1 [(validate.rules).repeated.min_items=1];
+	repeated Policy oldPolicies = 1 [(validate.rules).repeated.min_items=1];
+	repeated Policy newPolicies = 2 [(validate.rules).repeated.min_items=1];
 }
 message UpdatePermissionsRpl {
 	uint32 code = 1;

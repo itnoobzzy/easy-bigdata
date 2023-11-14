@@ -24,3 +24,12 @@ type DomainRoleResponse struct {
 	UpdateTime int64
 	DeleteTime int64
 }
+
+/*
+casbin rule response
+*/
+
+type PermissionsResponse struct {
+	Resource string
+	Action   string
+}

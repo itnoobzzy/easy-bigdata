@@ -59,7 +59,7 @@ func (m *GetAllSubjectsRpl) validate(all bool) error {
 
 	// no validation rules for Code
 
-	// no validation rules for Msg
+	// no validation rules for Message
 
 	for idx, item := range m.GetData() {
 		_, _ = idx, item
@@ -310,7 +310,7 @@ func (m *DeleteDomainRpl) validate(all bool) error {
 
 	// no validation rules for Code
 
-	// no validation rules for Msg
+	// no validation rules for Message
 
 	if len(errors) > 0 {
 		return DeleteDomainRplMultiError(errors)
@@ -703,7 +703,7 @@ func (m *BatchEnforceRpl) validate(all bool) error {
 
 	// no validation rules for Code
 
-	// no validation rules for Msg
+	// no validation rules for Message
 
 	if len(errors) > 0 {
 		return BatchEnforceRplMultiError(errors)
@@ -954,7 +954,7 @@ func (m *AddPermissionsRpl) validate(all bool) error {
 
 	// no validation rules for Code
 
-	// no validation rules for Msg
+	// no validation rules for Message
 
 	if len(errors) > 0 {
 		return AddPermissionsRplMultiError(errors)
@@ -1058,9 +1058,27 @@ func (m *GetPermissionsReq) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Sub
+	if utf8.RuneCountInString(m.GetSub()) < 1 {
+		err := GetPermissionsReqValidationError{
+			field:  "Sub",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Domain
+	if utf8.RuneCountInString(m.GetDomain()) < 1 {
+		err := GetPermissionsReqValidationError{
+			field:  "Domain",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if len(errors) > 0 {
 		return GetPermissionsReqMultiError(errors)
@@ -1166,7 +1184,7 @@ func (m *GetPermissionsRpl) validate(all bool) error {
 
 	// no validation rules for Code
 
-	// no validation rules for Msg
+	// no validation rules for Message
 
 	for idx, item := range m.GetData() {
 		_, _ = idx, item
@@ -1304,9 +1322,9 @@ func (m *UpdatePermissionsReq) validate(all bool) error {
 
 	var errors []error
 
-	if len(m.GetPolicies()) < 1 {
+	if len(m.GetOldPolicies()) < 1 {
 		err := UpdatePermissionsReqValidationError{
-			field:  "Policies",
+			field:  "OldPolicies",
 			reason: "value must contain at least 1 item(s)",
 		}
 		if !all {
@@ -1315,7 +1333,7 @@ func (m *UpdatePermissionsReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	for idx, item := range m.GetPolicies() {
+	for idx, item := range m.GetOldPolicies() {
 		_, _ = idx, item
 
 		if all {
@@ -1323,7 +1341,7 @@ func (m *UpdatePermissionsReq) validate(all bool) error {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, UpdatePermissionsReqValidationError{
-						field:  fmt.Sprintf("Policies[%v]", idx),
+						field:  fmt.Sprintf("OldPolicies[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -1331,7 +1349,7 @@ func (m *UpdatePermissionsReq) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, UpdatePermissionsReqValidationError{
-						field:  fmt.Sprintf("Policies[%v]", idx),
+						field:  fmt.Sprintf("OldPolicies[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -1340,7 +1358,52 @@ func (m *UpdatePermissionsReq) validate(all bool) error {
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return UpdatePermissionsReqValidationError{
-					field:  fmt.Sprintf("Policies[%v]", idx),
+					field:  fmt.Sprintf("OldPolicies[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if len(m.GetNewPolicies()) < 1 {
+		err := UpdatePermissionsReqValidationError{
+			field:  "NewPolicies",
+			reason: "value must contain at least 1 item(s)",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	for idx, item := range m.GetNewPolicies() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, UpdatePermissionsReqValidationError{
+						field:  fmt.Sprintf("NewPolicies[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, UpdatePermissionsReqValidationError{
+						field:  fmt.Sprintf("NewPolicies[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return UpdatePermissionsReqValidationError{
+					field:  fmt.Sprintf("NewPolicies[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -1453,7 +1516,7 @@ func (m *UpdatePermissionsRpl) validate(all bool) error {
 
 	// no validation rules for Code
 
-	// no validation rules for Msg
+	// no validation rules for Message
 
 	if len(errors) > 0 {
 		return UpdatePermissionsRplMultiError(errors)
@@ -1706,7 +1769,7 @@ func (m *DeletePermissionsRpl) validate(all bool) error {
 
 	// no validation rules for Code
 
-	// no validation rules for Msg
+	// no validation rules for Message
 
 	if len(errors) > 0 {
 		return DeletePermissionsRplMultiError(errors)

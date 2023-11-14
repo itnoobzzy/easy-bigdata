@@ -106,3 +106,8 @@ func (uc *DomainRoleUseCase) GetDomainRoles(ctx context.Context, domain string) 
 	}
 	return domainRoles, nil
 }
+
+// GetDomainSubsForRole 查询域角色下所有用户及其权限
+func (uc *DomainRoleUseCase) GetDomainSubsForRole(ctx context.Context, domain, role string) ([]*DomainRoleResponse, error) {
+	panic(1)
+}

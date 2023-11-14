@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"easyCasbin/api/casbin_rule/v1"
+	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gorm"
 	"sort"
@@ -34,6 +35,15 @@ type CasbinRuleRepo interface {
 
 	// GetImplicitPermissionsForUser 查询鉴权主体（用户或角色）在对应域上的权限
 	GetImplicitPermissionsForUser(ctx context.Context, username, domain string) (permissions [][]string, err error)
+
+	// GetImplicitUsersForRole 查询域角色下的所有用户
+	GetImplicitUsersForRole(ctx context.Context, domain, role string) (users []string, err error)
+
+	// AddRoleForUserInDomain 为用户添加域角色或者为角色继承另一个角色权限
+	AddRoleForUserInDomain(ctx context.Context, user, domain, role string) (ok bool, err error)
+
+	// DeleteRoleForUserInDomain 移除指定域角色下的用户或者取消指定域角色的继承
+	DeleteRoleForUserInDomain(ctx context.Context, user, domain, role string) (ok bool, err error)
 
 	// DeleteDomain 删除域上的所有规则
 	DeleteDomain(ctx context.Context, domain string) (bool, error)
@@ -107,4 +117,38 @@ func (uc *CasbinRuleUseCase) AddPermissionsForSubInDomain(ctx context.Context, r
 		return false, err
 	}
 	return true, nil
+}
+
+// GetPermissions 获取指定域上鉴权主体的所属权限，包括继承的权限
+func (uc *CasbinRuleUseCase) GetPermissions(ctx context.Context, domain, sub string) (permissions []PermissionsResponse, err error) {
+	ps, err := uc.repo.GetImplicitPermissionsForUser(ctx, sub, domain)
+	if err != nil {
+		return nil, err
+	}
+
+	newSet := mapset.NewSet[PermissionsResponse]()
+	for _, p := range ps {
+		newSet.Add(PermissionsResponse{
+			Resource: p[2],
+			Action:   p[3],
+		})
+	}
+	all := newSet.ToSlice()
+	for _, v := range all {
+		permissions = append(permissions, PermissionsResponse{
+			Resource: v.Resource,
+			Action:   v.Action,
+		})
+	}
+	return permissions, nil
+}
+
+// UpdatePermissions 批量更新权限
+func (uc *CasbinRuleUseCase) UpdatePermissions(ctx context.Context, oldRules, newRules [][]string) (bool, error) {
+	return uc.repo.UpdatePolicies(ctx, oldRules, newRules)
+}
+
+// DeletePermissions 批量删除权限
+func (uc *CasbinRuleUseCase) DeletePermissions(ctx context.Context, rules [][]string) (bool, error) {
+	return uc.repo.RemovePolicies(ctx, rules)
 }

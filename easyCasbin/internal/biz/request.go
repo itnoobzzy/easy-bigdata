@@ -43,6 +43,12 @@ type BatchEnforceParams struct {
 	Rules [][]interface{}
 }
 
+// UpdatePermissionsParams 批量修改权限所需参数
+type UpdatePermissionsParams struct {
+	OldPolicies []*PolicyParams
+	NewPolicies []*PolicyParams
+}
+
 func NewBatchEnforceParams(policies *casbin_rule_v1.BatchEnforceReq) (*BatchEnforceParams, error) {
 	var rules [][]interface{}
 	for _, p := range policies.Policies {
@@ -59,7 +65,77 @@ func NewAddPermissionsParams(policies *casbin_rule_v1.AddPermissionsReq) (*Polic
 
 		// 默认添加至default 域，并且添加的权限是生效的
 		if p.Domain == "" {
-			p.Domain = "default"
+			p.Domain = "domain:default"
+		}
+		if p.Eft == "" {
+			p.Eft = "allow"
+		}
+
+		ps = append(ps, &PolicyParams{
+			name:     p.Name,
+			domain:   "domain:" + p.Domain,
+			resource: p.Resource,
+			action:   p.Action,
+			eft:      p.Eft,
+		})
+	}
+	return &PoliciesParams{Policies: ps}, nil
+}
+
+func NewUpdatePermissionsParams(policies *casbin_rule_v1.UpdatePermissionsReq) (*UpdatePermissionsParams, error) {
+	var oldPs []*PolicyParams
+	var newPs []*PolicyParams
+	for _, p := range policies.OldPolicies {
+
+		// 默认添加至default 域，并且添加的权限是生效的
+		if p.Domain == "" {
+			p.Domain = "domain:default"
+		}
+		if p.Eft == "" {
+			p.Eft = "allow"
+		}
+
+		oldPs = append(oldPs, &PolicyParams{
+			name:     p.Name,
+			domain:   "domain:" + p.Domain,
+			resource: p.Resource,
+			action:   p.Action,
+			eft:      p.Eft,
+		})
+	}
+	for _, p := range policies.NewPolicies {
+
+		// 默认添加至default 域，并且添加的权限是生效的
+		if p.Domain == "" {
+			p.Domain = "domain:default"
+		}
+		if p.Eft == "" {
+			p.Eft = "allow"
+		}
+
+		newPs = append(newPs, &PolicyParams{
+			name:     p.Name,
+			domain:   "domain:" + p.Domain,
+			resource: p.Resource,
+			action:   p.Action,
+			eft:      p.Eft,
+		})
+	}
+
+	if len(oldPs) != len(newPs) {
+		return nil, casbin_rule_v1.ErrorInvalidArgs("The number of old rules must match the number of new rules")
+	}
+
+	return &UpdatePermissionsParams{OldPolicies: oldPs, NewPolicies: newPs}, nil
+}
+
+func NewDeletePermissionsParams(policies *casbin_rule_v1.DeletePermissionsReq) (*PoliciesParams, error) {
+	var ps []*PolicyParams
+	for _, p := range policies.Policies {
+
+		// 默认添加至default 域，并且添加的权限是生效的
+		if p.Domain == "" {
+			p.Domain = "domain:default"
 		}
 		if p.Eft == "" {
 			p.Eft = "allow"

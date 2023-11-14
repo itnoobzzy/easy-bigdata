@@ -560,7 +560,11 @@ components:
         api.casbin_rule.v1.UpdatePermissionsReq:
             type: object
             properties:
-                policies:
+                oldPolicies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.casbin_rule.v1.Policy'
+                newPolicies:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.casbin_rule.v1.Policy'

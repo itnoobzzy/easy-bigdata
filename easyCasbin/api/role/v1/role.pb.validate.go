@@ -185,7 +185,7 @@ func (m *AddDomainRoleRpl) validate(all bool) error {
 
 	// no validation rules for Code
 
-	// no validation rules for Msg
+	// no validation rules for Message
 
 	if all {
 		switch v := interface{}(m.GetData()).(type) {
@@ -459,7 +459,7 @@ func (m *UpdateDomainRoleRpl) validate(all bool) error {
 
 	// no validation rules for Code
 
-	// no validation rules for Msg
+	// no validation rules for Message
 
 	if all {
 		switch v := interface{}(m.GetData()).(type) {
@@ -722,7 +722,7 @@ func (m *DeleteDomainRoleRpl) validate(all bool) error {
 
 	// no validation rules for Code
 
-	// no validation rules for Msg
+	// no validation rules for Message
 
 	if all {
 		switch v := interface{}(m.GetData()).(type) {
@@ -970,7 +970,7 @@ func (m *GetAllRolesRpl) validate(all bool) error {
 
 	// no validation rules for Code
 
-	// no validation rules for Msg
+	// no validation rules for Message
 
 	for idx, item := range m.GetData() {
 		_, _ = idx, item
@@ -1249,7 +1249,7 @@ func (m *AddRoleForSubInDomainRpl) validate(all bool) error {
 
 	// no validation rules for Code
 
-	// no validation rules for Msg
+	// no validation rules for Message
 
 	if len(errors) > 0 {
 		return AddRoleForSubInDomainRplMultiError(errors)
@@ -1483,7 +1483,7 @@ func (m *GetDomainSubsForRoleRpl) validate(all bool) error {
 
 	// no validation rules for Code
 
-	// no validation rules for Msg
+	// no validation rules for Message
 
 	for idx, item := range m.GetData() {
 		_, _ = idx, item
@@ -1765,7 +1765,7 @@ func (m *DeleteRoleForSubInDomainRpl) validate(all bool) error {
 
 	// no validation rules for Code
 
-	// no validation rules for Msg
+	// no validation rules for Message
 
 	if len(errors) > 0 {
 		return DeleteRoleForSubInDomainRplMultiError(errors)

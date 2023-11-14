@@ -6,6 +6,7 @@ require (
 	github.com/anaskhan96/go-password-encoder v0.0.0-20201010210601-c765b799fd72
 	github.com/casbin/casbin/v2 v2.77.2
 	github.com/casbin/gorm-adapter/v3 v3.20.0
+	github.com/deckarep/golang-set/v2 v2.3.1
 	github.com/envoyproxy/protoc-gen-validate v0.10.1
 	github.com/go-kratos/kratos/v2 v2.7.0
 	github.com/go-kratos/swagger-api v1.0.1

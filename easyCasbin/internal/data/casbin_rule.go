@@ -48,6 +48,21 @@ func (c *CasbinRuleRepo) GetRolesForUserInDomain(ctx context.Context, username, 
 	return roles, nil
 }
 
+// GetImplicitUsersForRole 查询域角色下的所有用户
+func (c *CasbinRuleRepo) GetImplicitUsersForRole(ctx context.Context, domain, role string) (users []string, err error) {
+	return c.enforcer.GetImplicitUsersForRole(role, domain)
+}
+
+// AddRoleForUserInDomain 为用户添加域角色或者为角色继承另一个角色权限
+func (c *CasbinRuleRepo) AddRoleForUserInDomain(ctx context.Context, user, domain, role string) (ok bool, err error) {
+	return c.enforcer.AddRoleForUserInDomain(user, role, domain)
+}
+
+// DeleteRoleForUserInDomain 移除指定域角色下的用户或者取消指定域角色的继承
+func (c *CasbinRuleRepo) DeleteRoleForUserInDomain(ctx context.Context, user, domain, role string) (ok bool, err error) {
+	return c.enforcer.DeleteRoleForUserInDomain(user, role, domain)
+}
+
 // GetImplicitPermissionsForUser 查询鉴权主体（用户或角色）在对应域上的权限
 func (c *CasbinRuleRepo) GetImplicitPermissionsForUser(ctx context.Context, username, domain string) (permissions [][]string, err error) {
 	permissions, _ = c.enforcer.GetImplicitPermissionsForUser(username, domain)

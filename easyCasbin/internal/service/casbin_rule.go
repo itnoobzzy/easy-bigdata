@@ -14,7 +14,7 @@ type CasbinRuleService struct {
 	uc  *biz.CasbinRuleUseCase
 	log *log.Helper
 
-	// 依赖的其他域的服务
+	// 依赖domain_role服务对域角色信息的操作
 	duc *biz.DomainRoleUseCase
 }
 
@@ -91,16 +91,61 @@ func (s *CasbinRuleService) AddPermissions(ctx context.Context, req *v1.AddPermi
 }
 
 // GetPermissions 获取鉴权主体所有权限
-func (s *CasbinRuleService) GetPermissions(context.Context, *v1.GetPermissionsReq) (*v1.GetPermissionsRpl, error) {
-	panic(1)
+func (s *CasbinRuleService) GetPermissions(ctx context.Context, req *v1.GetPermissionsReq) (*v1.GetPermissionsRpl, error) {
+	ps, err := s.uc.GetPermissions(ctx, "domain:"+req.Domain, req.Sub)
+	if err != nil {
+		return nil, err
+	}
+	var resData []*v1.GetPermissionsRpl_Data
+	for _, p := range ps {
+		resData = append(resData, &v1.GetPermissionsRpl_Data{
+			Resource: p.Resource,
+			Action:   p.Action,
+		})
+	}
+
+	return &v1.GetPermissionsRpl{
+		Code:    0,
+		Message: "ok",
+		Data:    resData,
+	}, nil
 }
 
 // UpdatePermissions 为鉴权主体批量更新权限
-func (s *CasbinRuleService) UpdatePermissions(context.Context, *v1.UpdatePermissionsReq) (*v1.UpdatePermissionsRpl, error) {
-	panic(1)
+func (s *CasbinRuleService) UpdatePermissions(ctx context.Context, req *v1.UpdatePermissionsReq) (*v1.UpdatePermissionsRpl, error) {
+	params, err := biz.NewUpdatePermissionsParams(req)
+	if err != nil {
+		return nil, err
+	}
+
+	oldRules, err := s.uc.CheckDomains(ctx, s.duc, params.OldPolicies)
+	newRules, err := s.uc.CheckDomains(ctx, s.duc, params.NewPolicies)
+
+	ok, err := s.uc.UpdatePermissions(ctx, oldRules, newRules)
+	if !ok || err != nil {
+		return nil, err
+	}
+	return &v1.UpdatePermissionsRpl{
+		Code:    0,
+		Message: "ok",
+	}, nil
+
 }
 
 // DeletePermissions 为鉴权主体批量删除权限
-func (s *CasbinRuleService) DeletePermissions(context.Context, *v1.DeletePermissionsReq) (*v1.DeletePermissionsRpl, error) {
-	panic(1)
+func (s *CasbinRuleService) DeletePermissions(ctx context.Context, req *v1.DeletePermissionsReq) (*v1.DeletePermissionsRpl, error) {
+	params, _ := biz.NewDeletePermissionsParams(req)
+
+	rules, err := s.uc.CheckDomains(ctx, s.duc, params.Policies)
+	if err != nil {
+		return nil, err
+	}
+	ok, err := s.uc.DeletePermissions(ctx, rules)
+	if !ok || err != nil {
+		return nil, err
+	}
+	return &v1.DeletePermissionsRpl{
+		Code:    0,
+		Message: "ok",
+	}, nil
 }
