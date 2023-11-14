@@ -7,6 +7,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gorm"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -44,6 +45,9 @@ type CasbinRuleRepo interface {
 
 	// DeleteRoleForUserInDomain 移除指定域角色下的用户或者取消指定域角色的继承
 	DeleteRoleForUserInDomain(ctx context.Context, user, domain, role string) (ok bool, err error)
+
+	// GetAllPolicyInDomain 获取指定域的所有权限
+	GetAllPolicyInDomain(ctx context.Context, domain string) (policies [][]string, err error)
 
 	// DeleteDomain 删除域上的所有规则
 	DeleteDomain(ctx context.Context, domain string) (bool, error)
@@ -119,25 +123,78 @@ func (uc *CasbinRuleUseCase) AddPermissionsForSubInDomain(ctx context.Context, r
 	return true, nil
 }
 
+// isInSlice 判断字符串是否在切片中
+func isInSlice(target string, slice []string) bool {
+	for _, value := range slice {
+		if value == target {
+			return true
+		}
+	}
+	return false
+}
+
 // GetPermissions 获取指定域上鉴权主体的所属权限，包括继承的权限
-func (uc *CasbinRuleUseCase) GetPermissions(ctx context.Context, domain, sub string) (permissions []PermissionsResponse, err error) {
-	ps, err := uc.repo.GetImplicitPermissionsForUser(ctx, sub, domain)
-	if err != nil {
-		return nil, err
+func (uc *CasbinRuleUseCase) GetPermissions(ctx context.Context, domain, sub string, duc *DomainRoleUseCase) (permissions []PermissionsResponse, err error) {
+
+	// 获取指定域角色对应的 id， 域名和角色名相同
+	id, _ := duc.repo.GetDomainRoleId(ctx, domain, domain)
+	domainRoleID := "role:" + strconv.Itoa(id)
+	userName := "user:" + sub
+
+	// "_" 开头的域角色为系统保留的域角色， _* 表示所有域， _all 表示默认域
+	roles, _ := duc.repo.GetDomainRoles(ctx, "_*")
+	innerRoles := make(map[string]string)
+	for _, r := range roles {
+		innerRoles[r.Name] = "role:" + strconv.Itoa(int(r.ID))
+	}
+	defaultRole := innerRoles["_all"]
+
+	var ps [][]string
+	// 获取用户在指定域上的所有角色， 如果存在 innerRoles 中的 _root 角色，说明为超级管理员角色，直接返回所有权限
+	userRoles, _ := uc.repo.GetRolesForUserInDomain(ctx, userName, domainRoleID)
+	if isInSlice(innerRoles["_root"], userRoles) {
+		ps, _ = uc.repo.GetAllPolicyInDomain(ctx, domainRoleID)
+	} else {
+		ps, _ = uc.repo.GetImplicitPermissionsForUser(ctx, userName, domainRoleID)
+	}
+
+	// 获取域角色上的默认权限
+	defaultPolicies, _ := uc.repo.GetImplicitPermissionsForUser(ctx, defaultRole, domainRoleID)
+	for _, p := range defaultPolicies {
+		ps = append(ps, p)
+	}
+
+	// 获取所有角色ID 与角色名的映射关系
+	idNameMap, _ := duc.repo.GetRoleIdNameMap()
+	rename := func(roleId string) string {
+		roleName, ok := idNameMap[roleId]
+		if strings.HasPrefix(roleId, "user:") {
+			return strings.Split(roleId, ":")[1]
+		} else if strings.HasPrefix(roleId, "role:") && ok {
+			return roleName
+		} else {
+			return roleId
+		}
 	}
 
 	newSet := mapset.NewSet[PermissionsResponse]()
 	for _, p := range ps {
 		newSet.Add(PermissionsResponse{
+			Sub:      rename(p[0]),
+			Domain:   rename(p[1]),
 			Resource: p[2],
 			Action:   p[3],
+			Eft:      p[4],
 		})
 	}
 	all := newSet.ToSlice()
 	for _, v := range all {
 		permissions = append(permissions, PermissionsResponse{
+			Sub:      v.Sub,
+			Domain:   v.Domain,
 			Resource: v.Resource,
 			Action:   v.Action,
+			Eft:      v.Eft,
 		})
 	}
 	return permissions, nil

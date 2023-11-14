@@ -92,15 +92,18 @@ func (s *CasbinRuleService) AddPermissions(ctx context.Context, req *v1.AddPermi
 
 // GetPermissions 获取鉴权主体所有权限
 func (s *CasbinRuleService) GetPermissions(ctx context.Context, req *v1.GetPermissionsReq) (*v1.GetPermissionsRpl, error) {
-	ps, err := s.uc.GetPermissions(ctx, "domain:"+req.Domain, req.Sub)
+	ps, err := s.uc.GetPermissions(ctx, req.Domain, req.Sub, s.duc)
 	if err != nil {
 		return nil, err
 	}
 	var resData []*v1.GetPermissionsRpl_Data
 	for _, p := range ps {
 		resData = append(resData, &v1.GetPermissionsRpl_Data{
-			Resource: p.Resource,
+			Sub:      p.Sub,
+			Domain:   p.Domain,
 			Action:   p.Action,
+			Resource: p.Resource,
+			Eft:      p.Eft,
 		})
 	}
 

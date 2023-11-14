@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"errors"
+	"strconv"
 
 	v1 "easyCasbin/api/role/v1"
 	"easyCasbin/internal/biz"
@@ -89,6 +90,30 @@ func (r *roleRepo) GetAllDomains(ctx context.Context) ([]string, error) {
 		domains = append(domains, role.Domain)
 	}
 	return domains, nil
+}
+
+// GetDomainRoleId 获取指定域角色的ID
+func (r *roleRepo) GetDomainRoleId(ctx context.Context, domain, role string) (int, error) {
+	var domainRole biz.Role
+	result := r.data.db.Where(&biz.Role{Domain: domain, Name: role}).First(&domainRole)
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return -1, nil
+	}
+	return int(domainRole.ID), nil
+}
+
+// GetRoleIdNameMap 获取所有角色 id 与角色名的映射关系
+func (r *roleRepo) GetRoleIdNameMap() (map[string]string, error) {
+	var domainRole []biz.Role
+	maps := make(map[string]string)
+	result := r.data.db.Find(&domainRole)
+	if err := result.Error; err != nil {
+		return nil, err
+	}
+	for _, role := range domainRole {
+		maps["role:"+strconv.Itoa(int(role.ID))] = role.Name
+	}
+	return maps, nil
 }
 
 func (r *roleRepo) CheckDomains(ctx context.Context, domains []string) (bool, error) {

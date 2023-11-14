@@ -7,6 +7,13 @@ import (
 	"gorm.io/gorm"
 )
 
+/*
+Role 业务逻辑：
+ 1. 用户组管理和域管理混合
+ 2. name==domain时，该条记录是域，反之为组
+ 3. _* 是所有域，_all是所有默认组，_root是系统管理员组
+ 4. (_*,_*) 标示所有域，（_all,_*）中的_* 无特殊含义，占位标示
+*/
 type Role struct {
 	gorm.Model
 	Name     string `json:"name" gorm:"not null;size:64;uniqueIndex:domain_role"`
@@ -30,6 +37,10 @@ type DomainRoleRepo interface {
 	GetDomainRoles(ctx context.Context, domain string) ([]*Role, error)
 	// CheckDomainRole 校验域角色是否存在
 	CheckDomainRole(ctx context.Context, domain, role string) (bool, error)
+	// GetDomainRoleId 获取指定域角色的ID
+	GetDomainRoleId(ctx context.Context, domain, role string) (int, error)
+	// GetRoleIdNameMap 获取所有角色 id 与角色名的映射关系
+	GetRoleIdNameMap() (maps map[string]string, err error)
 
 	// GetAllDomains 获取所有域
 	GetAllDomains(ctx context.Context) ([]string, error)

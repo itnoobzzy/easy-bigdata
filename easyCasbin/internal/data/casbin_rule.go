@@ -27,6 +27,7 @@ func NewCasbinRuleRepo(data *Data, casbinConf *conf.Casbin, logger log.Logger) b
 		log.NewHelper(logger).Error("closing the data resources")
 	}
 	enforcer, _ := casbin.NewEnforcer(m, a)
+	enforcer.EnableAutoBuildRoleLinks(true)
 	_ = enforcer.LoadPolicy()
 
 	return &CasbinRuleRepo{
@@ -67,6 +68,21 @@ func (c *CasbinRuleRepo) DeleteRoleForUserInDomain(ctx context.Context, user, do
 func (c *CasbinRuleRepo) GetImplicitPermissionsForUser(ctx context.Context, username, domain string) (permissions [][]string, err error) {
 	permissions, _ = c.enforcer.GetImplicitPermissionsForUser(username, domain)
 	return permissions, nil
+}
+
+// GetAllPolicyInDomain 获取指定域的所有权限
+func (c *CasbinRuleRepo) GetAllPolicyInDomain(ctx context.Context, domain string) (policies [][]string, err error) {
+	var rules []biz.CasbinRule
+	result := c.data.db.Where(&biz.CasbinRule{V1: domain}).Find(&rules)
+	if result.Error != nil {
+		return policies, err
+	}
+	for _, r := range rules {
+		p := make([]string, 0, 5)
+		p = append(p, r.V0, r.V1, r.V2, r.V3, r.V4)
+		policies = append(policies, p)
+	}
+	return policies, nil
 }
 
 // DeleteDomain 删除域

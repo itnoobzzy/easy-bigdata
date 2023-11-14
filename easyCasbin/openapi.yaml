@@ -540,9 +540,15 @@ components:
         api.casbin_rule.v1.GetPermissionsRpl_Data:
             type: object
             properties:
+                sub:
+                    type: string
+                domain:
+                    type: string
                 resource:
                     type: string
                 action:
+                    type: string
+                eft:
                     type: string
         api.casbin_rule.v1.Policy:
             type: object

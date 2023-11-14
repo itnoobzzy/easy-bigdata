@@ -10,13 +10,15 @@ server:
     expires_time: 604800
     buffer_time: 86400
     issuer: easyCasbin
-    white_list: "/api.user.v1.User/Login, /api.user.v1.User/register, 
+    white_list: "/api.user.v1.User/Login, /api.user.v1.User/RegisterUser, 
     /db.init.InitDB/InitUserDB, /db.init.InitDB/InitRoleDB"
 data:
   database:
     driver: mysql
-    source: dbadmin:hE4sqSfuCQeXEXwz@tcp(rm-3nsc58907o3epw2me.mysql.rds.aliyuncs.com:3306)/easyBigdata?charset=utf8mb4&parseTime=True&loc=Local
-    db_name: easyBigdata
+#    source: dbadmin:hE4sqSfuCQeXEXwz@tcp(rm-3nsc58907o3epw2me.mysql.rds.aliyuncs.com:3306)/easyBigdata?charset=utf8mb4&parseTime=True&loc=Local
+#    db_name: easyBigdata
+    source: dbadmin:hE4sqSfuCQeXEXwz@tcp(rm-3nsc58907o3epw2me.mysql.rds.aliyuncs.com:3306)/ssocasbin?charset=utf8mb4&parseTime=True&loc=Local
+    db_name: ssocasbin
   redis:
     addr: redis://:IyY1NA3Zre76542M@r-3ns20c32d1acd834.redis.rds.aliyuncs.com:6379/4
     read_timeout: 0.2s
