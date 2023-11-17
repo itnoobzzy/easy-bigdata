@@ -43,6 +43,38 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.casbin_rule.v1.DeleteDomainRpl'
+    /easyCasbin/api/casbin_rule/v1/domain_auth:
+        get:
+            tags:
+                - CasbinRule
+            description: 获取域下权限规则列表
+            operationId: CasbinRule_GetDomainAuth
+            parameters:
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: search
+                  in: query
+                  schema:
+                    type: string
+                - name: domain
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.casbin_rule.v1.GetDomainAuthRpl'
     /easyCasbin/api/casbin_rule/v1/enforce_policies:
         post:
             tags:
@@ -191,33 +223,11 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.role.v1.DeleteDomainRoleRpl'
-    /easyCasbin/api/v1/domain_roles/subs:
-        get:
-            tags:
-                - DomainRole
-            description: GetDomainSubsForRole 获取指定域角色下所有用户
-            operationId: DomainRole_GetDomainSubsForRole
-            parameters:
-                - name: domainName
-                  in: query
-                  schema:
-                    type: string
-                - name: roleName
-                  in: query
-                  schema:
-                    type: string
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.role.v1.GetDomainSubsForRoleRpl'
     /easyCasbin/api/v1/domain_roles/{domainName}:
         get:
             tags:
                 - DomainRole
-            description: GetDomainRoles 获取指定域下所有角色
+            description: GetDomainRoles 获取指定域下角色列表
             operationId: DomainRole_GetDomainRoles
             parameters:
                 - name: domainName
@@ -225,13 +235,27 @@ paths:
                   required: true
                   schema:
                     type: string
+                - name: roleName
+                  in: query
+                  schema:
+                    type: string
+                - name: pageSize
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: pageNum
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.role.v1.GetAllRolesRpl'
+                                $ref: '#/components/schemas/api.role.v1.GetDomainRolesRpl'
     /easyCasbin/api/v1/domain_roles/{domain}/role_sub:
         delete:
             tags:
@@ -294,6 +318,41 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.role.v1.AddRoleForSubInDomainRpl'
+    /easyCasbin/api/v1/domains:
+        get:
+            tags:
+                - DomainRole
+            description: 获取所有域
+            operationId: DomainRole_GetAllDomains
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.role.v1.GetAllDomainsRpl'
+    /easyCasbin/api/v1/subsInDomainRole:
+        get:
+            tags:
+                - DomainRole
+            description: GetSubsInDomainRole 获取指定域角色下所有鉴权主体，包括用户与角色
+            operationId: DomainRole_GetSubsInDomainRole
+            parameters:
+                - name: domainName
+                  in: query
+                  schema:
+                    type: string
+                - name: roleName
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.role.v1.GetSubsInDomainRoleRpl'
     /easyCasbin/api/v1/user:
         put:
             tags:
@@ -374,7 +433,8 @@ paths:
                   in: path
                   required: true
                   schema:
-                    type: string
+                    type: integer
+                    format: int32
             responses:
                 "200":
                     description: OK
@@ -525,6 +585,49 @@ components:
             properties:
                 sub:
                     type: string
+        api.casbin_rule.v1.GetDomainAuthRpl:
+            type: object
+            properties:
+                status:
+                    type: integer
+                    format: int32
+                data:
+                    $ref: '#/components/schemas/api.casbin_rule.v1.GetDomainAuthRpl_Data'
+                message:
+                    type: string
+        api.casbin_rule.v1.GetDomainAuthRpl_Data:
+            type: object
+            properties:
+                roles:
+                    type: object
+                    additionalProperties:
+                        type: string
+                rules:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.casbin_rule.v1.GetDomainAuthRpl_Rule'
+                total:
+                    type: integer
+                    format: int32
+        api.casbin_rule.v1.GetDomainAuthRpl_Rule:
+            type: object
+            properties:
+                id:
+                    type: string
+                ptype:
+                    type: string
+                subject:
+                    type: string
+                domain:
+                    type: string
+                object:
+                    type: string
+                action:
+                    type: string
+                effect:
+                    type: string
+                v5:
+                    type: string
         api.casbin_rule.v1.GetPermissionsRpl:
             type: object
             properties:
@@ -603,9 +706,11 @@ components:
             type: object
             properties:
                 id:
-                    type: string
+                    type: integer
+                    format: int32
                 creatTime:
-                    type: string
+                    type: integer
+                    format: int32
                 name:
                     type: string
                 domain:
@@ -644,7 +749,8 @@ components:
             type: object
             properties:
                 deleteTime:
-                    type: string
+                    type: integer
+                    format: int32
         api.role.v1.DeleteRoleForSubInDomainRpl:
             type: object
             properties:
@@ -653,10 +759,10 @@ components:
                     format: uint32
                 message:
                     type: string
-        api.role.v1.GetAllRolesRpl:
+        api.role.v1.GetAllDomainsRpl:
             type: object
             properties:
-                code:
+                status:
                     type: integer
                     format: uint32
                 message:
@@ -664,21 +770,48 @@ components:
                 data:
                     type: array
                     items:
-                        $ref: '#/components/schemas/api.role.v1.GetAllRolesRpl_Data'
-        api.role.v1.GetAllRolesRpl_Data:
+                        $ref: '#/components/schemas/api.role.v1.GetAllDomainsRpl_Data'
+        api.role.v1.GetAllDomainsRpl_Data:
             type: object
             properties:
                 id:
+                    type: integer
+                    format: int32
+                domain:
                     type: string
-                createTime:
+                name:
                     type: string
-                updateTime:
+        api.role.v1.GetDomainRolesRpl:
+            type: object
+            properties:
+                status:
+                    type: integer
+                    format: uint32
+                message:
                     type: string
+                data:
+                    $ref: '#/components/schemas/api.role.v1.GetDomainRolesRpl_Data'
+        api.role.v1.GetDomainRolesRpl_Data:
+            type: object
+            properties:
+                roles:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.role.v1.GetDomainRolesRpl_Role'
+                total:
+                    type: integer
+                    format: int32
+        api.role.v1.GetDomainRolesRpl_Role:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
                 name:
                     type: string
                 domain:
                     type: string
-        api.role.v1.GetDomainSubsForRoleRpl:
+        api.role.v1.GetSubsInDomainRoleRpl:
             type: object
             properties:
                 code:
@@ -689,11 +822,13 @@ components:
                 data:
                     type: array
                     items:
-                        $ref: '#/components/schemas/api.role.v1.GetDomainSubsForRoleRpl_Data'
-        api.role.v1.GetDomainSubsForRoleRpl_Data:
+                        $ref: '#/components/schemas/api.role.v1.GetSubsInDomainRoleRpl_Data'
+        api.role.v1.GetSubsInDomainRoleRpl_Data:
             type: object
             properties:
-                sub:
+                id:
+                    type: string
+                name:
                     type: string
         api.role.v1.UpdateDomainRoleReq:
             type: object
@@ -718,9 +853,11 @@ components:
             type: object
             properties:
                 id:
-                    type: string
+                    type: integer
+                    format: int32
                 updateTime:
-                    type: string
+                    type: integer
+                    format: int32
                 name:
                     type: string
                 domain:
@@ -751,7 +888,8 @@ components:
                 Token:
                     type: string
                 ExpiresAt:
-                    type: string
+                    type: integer
+                    format: int32
         api.user.v1.RegisterRequest:
             type: object
             properties:
@@ -766,7 +904,8 @@ components:
             type: object
             properties:
                 id:
-                    type: string
+                    type: integer
+                    format: int32
                 nickName:
                     type: string
                 gender:
@@ -777,7 +916,8 @@ components:
             type: object
             properties:
                 id:
-                    type: string
+                    type: integer
+                    format: int32
                 mobile:
                     type: string
                 username:

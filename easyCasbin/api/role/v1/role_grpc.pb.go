@@ -11,6 +11,7 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -19,11 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
+	DomainRole_GetAllDomains_FullMethodName            = "/api.role.v1.DomainRole/GetAllDomains"
 	DomainRole_AddDomainRole_FullMethodName            = "/api.role.v1.DomainRole/AddDomainRole"
 	DomainRole_UpdateRoleInfo_FullMethodName           = "/api.role.v1.DomainRole/UpdateRoleInfo"
 	DomainRole_DeleteRole_FullMethodName               = "/api.role.v1.DomainRole/DeleteRole"
 	DomainRole_GetDomainRoles_FullMethodName           = "/api.role.v1.DomainRole/GetDomainRoles"
-	DomainRole_GetDomainSubsForRole_FullMethodName     = "/api.role.v1.DomainRole/GetDomainSubsForRole"
+	DomainRole_GetSubsInDomainRole_FullMethodName      = "/api.role.v1.DomainRole/GetSubsInDomainRole"
 	DomainRole_AddRoleForSubInDomain_FullMethodName    = "/api.role.v1.DomainRole/AddRoleForSubInDomain"
 	DomainRole_DeleteRoleForSubInDomain_FullMethodName = "/api.role.v1.DomainRole/DeleteRoleForSubInDomain"
 )
@@ -32,16 +34,18 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DomainRoleClient interface {
+	// 获取所有域
+	GetAllDomains(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAllDomainsRpl, error)
 	// 添加域角色
 	AddDomainRole(ctx context.Context, in *AddDomainRoleReq, opts ...grpc.CallOption) (*AddDomainRoleRpl, error)
 	// 更新域角色信息
 	UpdateRoleInfo(ctx context.Context, in *UpdateDomainRoleReq, opts ...grpc.CallOption) (*UpdateDomainRoleRpl, error)
 	// DeleteRole 删除对应域的角色
 	DeleteRole(ctx context.Context, in *DeleteDomainRoleReq, opts ...grpc.CallOption) (*DeleteDomainRoleRpl, error)
-	// GetDomainRoles 获取指定域下所有角色
-	GetDomainRoles(ctx context.Context, in *GetAllRolesReq, opts ...grpc.CallOption) (*GetAllRolesRpl, error)
-	// GetDomainSubsForRole 获取指定域角色下所有用户
-	GetDomainSubsForRole(ctx context.Context, in *GetDomainSubsForRoleReq, opts ...grpc.CallOption) (*GetDomainSubsForRoleRpl, error)
+	// GetDomainRoles 获取指定域下角色列表
+	GetDomainRoles(ctx context.Context, in *GetDomainRolesReq, opts ...grpc.CallOption) (*GetDomainRolesRpl, error)
+	// GetSubsInDomainRole 获取指定域角色下所有鉴权主体，包括用户与角色
+	GetSubsInDomainRole(ctx context.Context, in *GetSubsInDomainRoleReq, opts ...grpc.CallOption) (*GetSubsInDomainRoleRpl, error)
 	// AddRoleForSubInDomain 为用户添加域角色或者为角色继承另一个角色权限
 	AddRoleForSubInDomain(ctx context.Context, in *AddRoleForSubInDomainReq, opts ...grpc.CallOption) (*AddRoleForSubInDomainRpl, error)
 	// DeleteRoleForSubInDomain 删除角色下subject（鉴权主体）
@@ -54,6 +58,15 @@ type domainRoleClient struct {
 
 func NewDomainRoleClient(cc grpc.ClientConnInterface) DomainRoleClient {
 	return &domainRoleClient{cc}
+}
+
+func (c *domainRoleClient) GetAllDomains(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAllDomainsRpl, error) {
+	out := new(GetAllDomainsRpl)
+	err := c.cc.Invoke(ctx, DomainRole_GetAllDomains_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *domainRoleClient) AddDomainRole(ctx context.Context, in *AddDomainRoleReq, opts ...grpc.CallOption) (*AddDomainRoleRpl, error) {
@@ -83,8 +96,8 @@ func (c *domainRoleClient) DeleteRole(ctx context.Context, in *DeleteDomainRoleR
 	return out, nil
 }
 
-func (c *domainRoleClient) GetDomainRoles(ctx context.Context, in *GetAllRolesReq, opts ...grpc.CallOption) (*GetAllRolesRpl, error) {
-	out := new(GetAllRolesRpl)
+func (c *domainRoleClient) GetDomainRoles(ctx context.Context, in *GetDomainRolesReq, opts ...grpc.CallOption) (*GetDomainRolesRpl, error) {
+	out := new(GetDomainRolesRpl)
 	err := c.cc.Invoke(ctx, DomainRole_GetDomainRoles_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -92,9 +105,9 @@ func (c *domainRoleClient) GetDomainRoles(ctx context.Context, in *GetAllRolesRe
 	return out, nil
 }
 
-func (c *domainRoleClient) GetDomainSubsForRole(ctx context.Context, in *GetDomainSubsForRoleReq, opts ...grpc.CallOption) (*GetDomainSubsForRoleRpl, error) {
-	out := new(GetDomainSubsForRoleRpl)
-	err := c.cc.Invoke(ctx, DomainRole_GetDomainSubsForRole_FullMethodName, in, out, opts...)
+func (c *domainRoleClient) GetSubsInDomainRole(ctx context.Context, in *GetSubsInDomainRoleReq, opts ...grpc.CallOption) (*GetSubsInDomainRoleRpl, error) {
+	out := new(GetSubsInDomainRoleRpl)
+	err := c.cc.Invoke(ctx, DomainRole_GetSubsInDomainRole_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -123,16 +136,18 @@ func (c *domainRoleClient) DeleteRoleForSubInDomain(ctx context.Context, in *Del
 // All implementations must embed UnimplementedDomainRoleServer
 // for forward compatibility
 type DomainRoleServer interface {
+	// 获取所有域
+	GetAllDomains(context.Context, *emptypb.Empty) (*GetAllDomainsRpl, error)
 	// 添加域角色
 	AddDomainRole(context.Context, *AddDomainRoleReq) (*AddDomainRoleRpl, error)
 	// 更新域角色信息
 	UpdateRoleInfo(context.Context, *UpdateDomainRoleReq) (*UpdateDomainRoleRpl, error)
 	// DeleteRole 删除对应域的角色
 	DeleteRole(context.Context, *DeleteDomainRoleReq) (*DeleteDomainRoleRpl, error)
-	// GetDomainRoles 获取指定域下所有角色
-	GetDomainRoles(context.Context, *GetAllRolesReq) (*GetAllRolesRpl, error)
-	// GetDomainSubsForRole 获取指定域角色下所有用户
-	GetDomainSubsForRole(context.Context, *GetDomainSubsForRoleReq) (*GetDomainSubsForRoleRpl, error)
+	// GetDomainRoles 获取指定域下角色列表
+	GetDomainRoles(context.Context, *GetDomainRolesReq) (*GetDomainRolesRpl, error)
+	// GetSubsInDomainRole 获取指定域角色下所有鉴权主体，包括用户与角色
+	GetSubsInDomainRole(context.Context, *GetSubsInDomainRoleReq) (*GetSubsInDomainRoleRpl, error)
 	// AddRoleForSubInDomain 为用户添加域角色或者为角色继承另一个角色权限
 	AddRoleForSubInDomain(context.Context, *AddRoleForSubInDomainReq) (*AddRoleForSubInDomainRpl, error)
 	// DeleteRoleForSubInDomain 删除角色下subject（鉴权主体）
@@ -144,6 +159,9 @@ type DomainRoleServer interface {
 type UnimplementedDomainRoleServer struct {
 }
 
+func (UnimplementedDomainRoleServer) GetAllDomains(context.Context, *emptypb.Empty) (*GetAllDomainsRpl, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllDomains not implemented")
+}
 func (UnimplementedDomainRoleServer) AddDomainRole(context.Context, *AddDomainRoleReq) (*AddDomainRoleRpl, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddDomainRole not implemented")
 }
@@ -153,11 +171,11 @@ func (UnimplementedDomainRoleServer) UpdateRoleInfo(context.Context, *UpdateDoma
 func (UnimplementedDomainRoleServer) DeleteRole(context.Context, *DeleteDomainRoleReq) (*DeleteDomainRoleRpl, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteRole not implemented")
 }
-func (UnimplementedDomainRoleServer) GetDomainRoles(context.Context, *GetAllRolesReq) (*GetAllRolesRpl, error) {
+func (UnimplementedDomainRoleServer) GetDomainRoles(context.Context, *GetDomainRolesReq) (*GetDomainRolesRpl, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDomainRoles not implemented")
 }
-func (UnimplementedDomainRoleServer) GetDomainSubsForRole(context.Context, *GetDomainSubsForRoleReq) (*GetDomainSubsForRoleRpl, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetDomainSubsForRole not implemented")
+func (UnimplementedDomainRoleServer) GetSubsInDomainRole(context.Context, *GetSubsInDomainRoleReq) (*GetSubsInDomainRoleRpl, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSubsInDomainRole not implemented")
 }
 func (UnimplementedDomainRoleServer) AddRoleForSubInDomain(context.Context, *AddRoleForSubInDomainReq) (*AddRoleForSubInDomainRpl, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddRoleForSubInDomain not implemented")
@@ -176,6 +194,24 @@ type UnsafeDomainRoleServer interface {
 
 func RegisterDomainRoleServer(s grpc.ServiceRegistrar, srv DomainRoleServer) {
 	s.RegisterService(&DomainRole_ServiceDesc, srv)
+}
+
+func _DomainRole_GetAllDomains_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DomainRoleServer).GetAllDomains(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DomainRole_GetAllDomains_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DomainRoleServer).GetAllDomains(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _DomainRole_AddDomainRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -233,7 +269,7 @@ func _DomainRole_DeleteRole_Handler(srv interface{}, ctx context.Context, dec fu
 }
 
 func _DomainRole_GetDomainRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetAllRolesReq)
+	in := new(GetDomainRolesReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -245,25 +281,25 @@ func _DomainRole_GetDomainRoles_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: DomainRole_GetDomainRoles_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DomainRoleServer).GetDomainRoles(ctx, req.(*GetAllRolesReq))
+		return srv.(DomainRoleServer).GetDomainRoles(ctx, req.(*GetDomainRolesReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DomainRole_GetDomainSubsForRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetDomainSubsForRoleReq)
+func _DomainRole_GetSubsInDomainRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSubsInDomainRoleReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DomainRoleServer).GetDomainSubsForRole(ctx, in)
+		return srv.(DomainRoleServer).GetSubsInDomainRole(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: DomainRole_GetDomainSubsForRole_FullMethodName,
+		FullMethod: DomainRole_GetSubsInDomainRole_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DomainRoleServer).GetDomainSubsForRole(ctx, req.(*GetDomainSubsForRoleReq))
+		return srv.(DomainRoleServer).GetSubsInDomainRole(ctx, req.(*GetSubsInDomainRoleReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -312,6 +348,10 @@ var DomainRole_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*DomainRoleServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "GetAllDomains",
+			Handler:    _DomainRole_GetAllDomains_Handler,
+		},
+		{
 			MethodName: "AddDomainRole",
 			Handler:    _DomainRole_AddDomainRole_Handler,
 		},
@@ -328,8 +368,8 @@ var DomainRole_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _DomainRole_GetDomainRoles_Handler,
 		},
 		{
-			MethodName: "GetDomainSubsForRole",
-			Handler:    _DomainRole_GetDomainSubsForRole_Handler,
+			MethodName: "GetSubsInDomainRole",
+			Handler:    _DomainRole_GetSubsInDomainRole_Handler,
 		},
 		{
 			MethodName: "AddRoleForSubInDomain",

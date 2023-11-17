@@ -31,6 +31,13 @@ service CasbinRule {
 		};
 	};
 
+	// 获取域下权限规则列表
+	rpc GetDomainAuth(GetDomainAuthReq) returns (GetDomainAuthRpl) {
+		option (google.api.http) = {
+			get: "/easyCasbin/api/casbin_rule/v1/domain_auth"
+		};
+	};
+
 	// 删除域规则
 	rpc DeleteDomain(DeleteDomainReq) returns (DeleteDomainRpl) {
 		option (google.api.http) = {
@@ -85,6 +92,38 @@ message GetAllSubjectsRpl {
 	uint32 code = 1;
 	string message = 2;
 	repeated Data data = 3;
+}
+
+message GetDomainAuthReq {
+	int32 pageSize = 1 [(validate.rules).int32.gt=0];
+	int32 pageNum = 2 [(validate.rules).int32.gt=0];
+	string search = 3;
+	string domain = 4 [(validate.rules).string.min_len=1];
+}
+
+message GetDomainAuthRpl {
+	message Role {
+		string id = 1;
+		string name = 2;
+	}
+	message Rule {
+		int64 id = 1;
+		string ptype = 2;
+		string subject = 3;
+		string domain = 4;
+		string object = 5;
+		string action = 6;
+		string effect = 7;
+		string v5 = 8;
+	}
+	message Data {
+		map<string, string> roles = 1;
+		repeated Rule rules = 2;
+		int32 total = 3;
+	}
+	int32 status = 1;
+	Data data = 2;
+	string message = 3;
 }
 
 message DeleteDomainReq {

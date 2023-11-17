@@ -31,7 +31,7 @@ func (e *encryptServiceImpl) CheckPassword(ctx context.Context, pwd, encryptedPa
 
 func (e *encryptServiceImpl) Token(ctx context.Context, user *User) (string, error) {
 	j := jwt.JWT{C: e.sc}
-	claims := j.CreateClaims(user.ID, user.Username)
+	claims := j.CreateClaims(int64(user.ID), user.Username)
 	token, _ := j.CreateToken(claims)
 	return token, nil
 }

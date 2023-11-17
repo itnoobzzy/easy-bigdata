@@ -1,7 +1,7 @@
 package biz
 
 type UserInfoResponse struct {
-	Id       int64
+	Id       int32
 	Mobile   string
 	Username string
 }
@@ -9,7 +9,7 @@ type UserInfoResponse struct {
 type LoginResponse struct {
 	User      UserInfoResponse `json:"user"`
 	Token     string           `json:"token"`
-	ExpiresAt int64            `json:"expiresAt"`
+	ExpiresAt int32            `json:"expiresAt"`
 }
 
 /*
@@ -17,12 +17,12 @@ type LoginResponse struct {
 */
 
 type DomainRoleResponse struct {
-	Id         int64
+	Id         int32
 	Name       string
 	Domain     string
-	CreateTime int64
-	UpdateTime int64
-	DeleteTime int64
+	CreateTime int32
+	UpdateTime int32
+	DeleteTime int32
 }
 
 /*
@@ -35,4 +35,10 @@ type PermissionsResponse struct {
 	Resource string // 资源
 	Action   string // 操作
 	Eft      string // 是否允许
+}
+
+type DomainAuthResponse struct {
+	Rules [][]string        `json:"rules"`
+	Roles map[string]string `json:"roles"`
+	Total int32             `json:"total"`
 }

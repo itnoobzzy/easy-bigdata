@@ -6,6 +6,7 @@ import (
 	"easyCasbin/internal/biz"
 	"github.com/go-kratos/kratos/v2/log"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"strconv"
 )
 
 type CasbinRuleService struct {
@@ -42,6 +43,39 @@ func (s *CasbinRuleService) GetAllSubjects(ctx context.Context, e *emptypb.Empty
 		Code:    0,
 		Message: "ok",
 		Data:    resData,
+	}, nil
+}
+
+// GetDomainAuth 获取域下所有权限
+func (s *CasbinRuleService) GetDomainAuth(ctx context.Context, req *v1.GetDomainAuthReq) (*v1.GetDomainAuthRpl, error) {
+	params, err := biz.NewGetDomainAuthParams(req)
+	if err != nil {
+		return nil, err
+	}
+	auth, err := s.uc.GetDomainAuth(ctx, params, s.duc)
+
+	var resRules []*v1.GetDomainAuthRpl_Rule
+	for _, rule := range auth.Rules {
+		id, _ := strconv.Atoi(rule[0])
+		resRules = append(resRules, &v1.GetDomainAuthRpl_Rule{
+			Id:      int64(id),
+			Ptype:   rule[1],
+			Subject: rule[2],
+			Domain:  rule[3],
+			Object:  rule[4],
+			Action:  rule[5],
+			Effect:  rule[6],
+			V5:      rule[7],
+		})
+	}
+	return &v1.GetDomainAuthRpl{
+		Status: 200,
+		Data: &v1.GetDomainAuthRpl_Data{
+			Roles: auth.Roles,
+			Rules: resRules,
+			Total: auth.Total,
+		},
+		Message: "ok",
 	}, nil
 }
 

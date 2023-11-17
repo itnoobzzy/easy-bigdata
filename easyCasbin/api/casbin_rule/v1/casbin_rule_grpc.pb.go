@@ -21,6 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	CasbinRule_GetAllSubjects_FullMethodName    = "/api.casbin_rule.v1.CasbinRule/GetAllSubjects"
+	CasbinRule_GetDomainAuth_FullMethodName     = "/api.casbin_rule.v1.CasbinRule/GetDomainAuth"
 	CasbinRule_DeleteDomain_FullMethodName      = "/api.casbin_rule.v1.CasbinRule/DeleteDomain"
 	CasbinRule_BatchEnforce_FullMethodName      = "/api.casbin_rule.v1.CasbinRule/BatchEnforce"
 	CasbinRule_AddPermissions_FullMethodName    = "/api.casbin_rule.v1.CasbinRule/AddPermissions"
@@ -35,6 +36,8 @@ const (
 type CasbinRuleClient interface {
 	// 获取所有鉴权主体
 	GetAllSubjects(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAllSubjectsRpl, error)
+	// 获取域下权限规则列表
+	GetDomainAuth(ctx context.Context, in *GetDomainAuthReq, opts ...grpc.CallOption) (*GetDomainAuthRpl, error)
 	// 删除域规则
 	DeleteDomain(ctx context.Context, in *DeleteDomainReq, opts ...grpc.CallOption) (*DeleteDomainRpl, error)
 	// 批量校验权限，当有一条不通过时校验就不通过
@@ -60,6 +63,15 @@ func NewCasbinRuleClient(cc grpc.ClientConnInterface) CasbinRuleClient {
 func (c *casbinRuleClient) GetAllSubjects(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetAllSubjectsRpl, error) {
 	out := new(GetAllSubjectsRpl)
 	err := c.cc.Invoke(ctx, CasbinRule_GetAllSubjects_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *casbinRuleClient) GetDomainAuth(ctx context.Context, in *GetDomainAuthReq, opts ...grpc.CallOption) (*GetDomainAuthRpl, error) {
+	out := new(GetDomainAuthRpl)
+	err := c.cc.Invoke(ctx, CasbinRule_GetDomainAuth_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -126,6 +138,8 @@ func (c *casbinRuleClient) DeletePermissions(ctx context.Context, in *DeletePerm
 type CasbinRuleServer interface {
 	// 获取所有鉴权主体
 	GetAllSubjects(context.Context, *emptypb.Empty) (*GetAllSubjectsRpl, error)
+	// 获取域下权限规则列表
+	GetDomainAuth(context.Context, *GetDomainAuthReq) (*GetDomainAuthRpl, error)
 	// 删除域规则
 	DeleteDomain(context.Context, *DeleteDomainReq) (*DeleteDomainRpl, error)
 	// 批量校验权限，当有一条不通过时校验就不通过
@@ -147,6 +161,9 @@ type UnimplementedCasbinRuleServer struct {
 
 func (UnimplementedCasbinRuleServer) GetAllSubjects(context.Context, *emptypb.Empty) (*GetAllSubjectsRpl, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllSubjects not implemented")
+}
+func (UnimplementedCasbinRuleServer) GetDomainAuth(context.Context, *GetDomainAuthReq) (*GetDomainAuthRpl, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDomainAuth not implemented")
 }
 func (UnimplementedCasbinRuleServer) DeleteDomain(context.Context, *DeleteDomainReq) (*DeleteDomainRpl, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteDomain not implemented")
@@ -193,6 +210,24 @@ func _CasbinRule_GetAllSubjects_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CasbinRuleServer).GetAllSubjects(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CasbinRule_GetDomainAuth_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDomainAuthReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CasbinRuleServer).GetDomainAuth(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CasbinRule_GetDomainAuth_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CasbinRuleServer).GetDomainAuth(ctx, req.(*GetDomainAuthReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -315,6 +350,10 @@ var CasbinRule_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllSubjects",
 			Handler:    _CasbinRule_GetAllSubjects_Handler,
+		},
+		{
+			MethodName: "GetDomainAuth",
+			Handler:    _CasbinRule_GetDomainAuth_Handler,
 		},
 		{
 			MethodName: "DeleteDomain",

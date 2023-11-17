@@ -47,7 +47,7 @@ type CasbinRuleRepo interface {
 	DeleteRoleForUserInDomain(ctx context.Context, user, domain, role string) (ok bool, err error)
 
 	// GetAllPolicyInDomain 获取指定域的所有权限
-	GetAllPolicyInDomain(ctx context.Context, domain string) (policies [][]string, err error)
+	GetAllPolicyInDomain(ctx context.Context, domain, search string, offset, limit int) ([][]string, int32, error)
 
 	// DeleteDomain 删除域上的所有规则
 	DeleteDomain(ctx context.Context, domain string) (bool, error)
@@ -77,6 +77,24 @@ func NewCasbinRuleUseCase(repo CasbinRuleRepo, logger log.Logger) *CasbinRuleUse
 	}
 }
 
+// GetDomainAuth 获取域下权限列表
+func (uc *CasbinRuleUseCase) GetDomainAuth(ctx context.Context,
+	params *GetDomainAuthParams, duc *DomainRoleUseCase) (domainAuth *DomainAuthResponse, err error) {
+	roleID, _ := duc.repo.GetDomainRoleId(ctx, params.domain, params.domain)
+	ps, total, err := uc.repo.GetAllPolicyInDomain(ctx, "role:"+strconv.Itoa(roleID), params.search, params.offset, params.limit)
+	if err != nil {
+		return nil, err
+	}
+	roles := map[string]string{
+		"role:" + strconv.Itoa(roleID): params.domain,
+	}
+	return &DomainAuthResponse{
+		Rules: ps,
+		Roles: roles,
+		Total: total,
+	}, nil
+}
+
 // GetAllSubjects 获取所有鉴权主体
 func (uc *CasbinRuleUseCase) GetAllSubjects(ctx context.Context) ([]string, error) {
 	return uc.repo.GetAllSubjects(ctx)
@@ -97,15 +115,19 @@ func (uc *CasbinRuleUseCase) BatchEnforce(ctx context.Context, rules [][]interfa
 // 不存在返回错误，正常返回规则列表
 func (uc *CasbinRuleUseCase) CheckDomains(ctx context.Context, domainRoleUseCase *DomainRoleUseCase,
 	policies []*PolicyParams) (rules [][]string, err error) {
-	allDomains, _ := domainRoleUseCase.repo.GetAllDomains(ctx)
-	sort.Strings(allDomains)
+	allDomains, _ := domainRoleUseCase.repo.GetAllDomains()
+	var domainNames []string
+	for _, d := range allDomains {
+		domainNames = append(domainNames, d.Domain)
+	}
+	sort.Strings(domainNames)
 	for _, v := range policies {
 		rule := make([]string, 0)
 		rule = append(rule, v.name, v.domain, v.resource, v.action, v.eft)
 		rules = append(rules, rule)
 		domain := strings.Split(v.domain, ":")[1]
-		idx := sort.SearchStrings(allDomains, domain)
-		if in := idx < len(allDomains) && allDomains[idx] == domain; !in {
+		idx := sort.SearchStrings(domainNames, domain)
+		if in := idx < len(allDomains) && domainNames[idx] == domain; !in {
 			return rules, v1.ErrorDomainNotFound("domain: %s not found", domain)
 		}
 	}
@@ -142,7 +164,7 @@ func (uc *CasbinRuleUseCase) GetPermissions(ctx context.Context, domain, sub str
 	userName := "user:" + sub
 
 	// "_" 开头的域角色为系统保留的域角色， _* 表示所有域， _all 表示默认域
-	roles, _ := duc.repo.GetDomainRoles(ctx, "_*")
+	roles, _, _ := duc.repo.GetDomainRoles(ctx, "_*", "", 0, 0)
 	innerRoles := make(map[string]string)
 	for _, r := range roles {
 		innerRoles[r.Name] = "role:" + strconv.Itoa(int(r.ID))
@@ -153,7 +175,7 @@ func (uc *CasbinRuleUseCase) GetPermissions(ctx context.Context, domain, sub str
 	// 获取用户在指定域上的所有角色， 如果存在 innerRoles 中的 _root 角色，说明为超级管理员角色，直接返回所有权限
 	userRoles, _ := uc.repo.GetRolesForUserInDomain(ctx, userName, domainRoleID)
 	if isInSlice(innerRoles["_root"], userRoles) {
-		ps, _ = uc.repo.GetAllPolicyInDomain(ctx, domainRoleID)
+		ps, _, _ = uc.repo.GetAllPolicyInDomain(ctx, domainRoleID, "", 0, 0)
 	} else {
 		ps, _ = uc.repo.GetImplicitPermissionsForUser(ctx, userName, domainRoleID)
 	}

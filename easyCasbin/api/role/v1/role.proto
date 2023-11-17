@@ -3,6 +3,7 @@ syntax = "proto3";
 package api.role.v1;
 
 import "validate/validate.proto";
+import "google/protobuf/empty.proto";
 import "errors/errors.proto";
 import "google/api/annotations.proto";
 
@@ -25,6 +26,12 @@ enum DomainRoleError {
 }
 
 service DomainRole {
+	// 获取所有域
+	rpc GetAllDomains(google.protobuf.Empty) returns (GetAllDomainsRpl) {
+		option (google.api.http) = {
+			get: "/easyCasbin/api/v1/domains"
+		};
+	};
 	// 添加域角色
 	rpc AddDomainRole(AddDomainRoleReq) returns (AddDomainRoleRpl) {
 		option (google.api.http) = {
@@ -45,16 +52,16 @@ service DomainRole {
 			delete: "/easyCasbin/api/v1/domain_role"
 		};
 	};
-	// GetDomainRoles 获取指定域下所有角色
-	rpc GetDomainRoles(GetAllRolesReq) returns (GetAllRolesRpl) {
+	// GetDomainRoles 获取指定域下角色列表
+	rpc GetDomainRoles(GetDomainRolesReq) returns (GetDomainRolesRpl) {
 		option (google.api.http) = {
 			get: "/easyCasbin/api/v1/domain_roles/{domainName}"
 		};
 	};
-	// GetDomainSubsForRole 获取指定域角色下所有用户
-	rpc GetDomainSubsForRole(GetDomainSubsForRoleReq) returns (GetDomainSubsForRoleRpl) {
+	// GetSubsInDomainRole 获取指定域角色下所有鉴权主体，包括用户与角色
+	rpc GetSubsInDomainRole(GetSubsInDomainRoleReq) returns (GetSubsInDomainRoleRpl) {
 		option (google.api.http) = {
-			get: "/easyCasbin/api/v1/domain_roles/subs"
+			get: "/easyCasbin/api/v1/subsInDomainRole"
 		};
 	};
 	// AddRoleForSubInDomain 为用户添加域角色或者为角色继承另一个角色权限
@@ -80,8 +87,8 @@ message AddDomainRoleReq {
 
 message AddDomainRoleRpl {
 	message Data {
-		int64 id = 1;
-		int64 creatTime = 2;
+		int32 id = 1;
+		int32 creatTime = 2;
 		string name = 3;
 		string domain = 4;
 	}
@@ -98,8 +105,8 @@ message UpdateDomainRoleReq {
 
 message UpdateDomainRoleRpl {
 	message Data {
-		int64 id = 1;
-		int64 updateTime = 2;
+		int32 id = 1;
+		int32 updateTime = 2;
 		string name = 3;
 		string domain = 4;
 	}
@@ -115,28 +122,46 @@ message DeleteDomainRoleReq {
 
 message DeleteDomainRoleRpl {
 	message Data {
-		int64 deleteTime = 1;
+		int32 deleteTime = 1;
 	}
 	uint32 code = 1;
 	string message = 2;
 	Data data = 3;
 }
 
-message GetAllRolesReq {
-	string domainName = 1 [(validate.rules).string.pattern="^[0-9a-zA-Z_]{1,}$"];
-}
-
-message GetAllRolesRpl {
+message GetAllDomainsRpl {
 	message Data {
-		int64 id = 1;
-		int64 createTime = 2;
-		int64 updateTime = 3;
-		string name = 4;
-		string domain = 5;
+		int32 id = 1;
+		string domain = 2;
+		string name = 3;
 	}
-	uint32 code = 1;
+	uint32 status = 1;
 	string message = 2;
 	repeated Data data = 3;
+}
+
+message GetDomainRolesReq {
+	string domainName = 1 [(validate.rules).string.pattern="^[0-9a-zA-Z_]{1,}$"];
+	string roleName = 2;
+	int32 pageSize = 3 [(validate.rules).int32.gt=0];
+	int32 pageNum = 4 [(validate.rules).int32.gt=0];
+}
+
+message GetDomainRolesRpl {
+	message Role {
+		int32 id = 1;
+		string name = 2;
+		string domain = 3;
+	}
+
+	message Data {
+		repeated Role roles = 2;
+		int32 total = 3;
+	}
+
+	uint32 status = 1;
+	string message = 2;
+	Data data = 3;
 }
 
 message AddRoleForSubInDomainReq {
@@ -153,14 +178,15 @@ message AddRoleForSubInDomainRpl {
 	string message = 2;
 }
 
-message GetDomainSubsForRoleReq {
-	string domainName = 1 [(validate.rules).string.pattern="^[0-9a-zA-Z_]{1,}$"];
-	string roleName = 2 [(validate.rules).string.pattern="^[0-9a-zA-Z_]{1,}$"];
+message GetSubsInDomainRoleReq {
+	string domainName = 1 [(validate.rules).string.min_len=1];
+	string roleName = 2 [(validate.rules).string.min_len=1];
 }
 
-message GetDomainSubsForRoleRpl {
+message GetSubsInDomainRoleRpl {
 	message Data {
-		string sub = 1;
+		string id = 1;
+		string name = 2;
 	}
 	uint32 code = 1;
 	string message = 2;

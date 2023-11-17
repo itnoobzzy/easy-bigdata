@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -22,6 +23,27 @@ type DomainRoleService struct {
 
 func NewDomainRoleService(uc *biz.DomainRoleUseCase, logger log.Logger, cuc *biz.CasbinRuleUseCase) *DomainRoleService {
 	return &DomainRoleService{uc: uc, log: log.NewHelper(logger), cuc: cuc}
+}
+
+// GetAllDomains 获取所有域
+func (s *DomainRoleService) GetAllDomains(context.Context, *emptypb.Empty) (*v1.GetAllDomainsRpl, error) {
+	var resData []*v1.GetAllDomainsRpl_Data
+	domains, err := s.uc.GetAllDomains()
+	if err != nil {
+		return nil, err
+	}
+	for _, d := range domains {
+		resData = append(resData, &v1.GetAllDomainsRpl_Data{
+			Id:     d.Id,
+			Name:   d.Name,
+			Domain: d.Domain,
+		})
+	}
+	return &v1.GetAllDomainsRpl{
+		Status:  0,
+		Message: "ok!",
+		Data:    resData,
+	}, nil
 }
 
 // AddDomainRole 添加域角色
@@ -70,43 +92,61 @@ func (s *DomainRoleService) DeleteRole(ctx context.Context, req *v1.DeleteDomain
 		return &v1.DeleteDomainRoleRpl{
 			Code:    1,
 			Message: "delete domain role failed!",
-			Data:    &v1.DeleteDomainRoleRpl_Data{DeleteTime: time.Now().Unix()},
+			Data:    &v1.DeleteDomainRoleRpl_Data{DeleteTime: int32(time.Now().Unix())},
 		}, nil
 	}
 	return &v1.DeleteDomainRoleRpl{
 		Code:    0,
 		Message: "delete domain role success!",
-		Data:    &v1.DeleteDomainRoleRpl_Data{DeleteTime: time.Now().Unix()},
+		Data:    &v1.DeleteDomainRoleRpl_Data{DeleteTime: int32(time.Now().Unix())},
 	}, nil
 }
 
 // GetDomainRoles 获取指定域下所有角色列表
-func (s *DomainRoleService) GetDomainRoles(ctx context.Context, req *v1.GetAllRolesReq) (*v1.GetAllRolesRpl, error) {
-	var resData []*v1.GetAllRolesRpl_Data
-	roles, err := s.uc.GetDomainRoles(ctx, req.DomainName)
+func (s *DomainRoleService) GetDomainRoles(ctx context.Context, req *v1.GetDomainRolesReq) (*v1.GetDomainRolesRpl, error) {
+	params := biz.NewGetDomainRolesParams(req)
+	roles, total, err := s.uc.GetDomainRoles(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
+	var resRoles []*v1.GetDomainRolesRpl_Role
 	for _, role := range roles {
-		resData = append(resData, &v1.GetAllRolesRpl_Data{
-			Id:         role.Id,
-			CreateTime: role.CreateTime,
-			UpdateTime: role.UpdateTime,
-			Name:       role.Name,
-			Domain:     role.Domain,
+		resRoles = append(resRoles, &v1.GetDomainRolesRpl_Role{
+			Id:     role.Id,
+			Name:   role.Name,
+			Domain: role.Domain,
 		})
 	}
-	return &v1.GetAllRolesRpl{
+
+	return &v1.GetDomainRolesRpl{
+		Status:  0,
+		Message: "ok!",
+		Data: &v1.GetDomainRolesRpl_Data{
+			Roles: resRoles,
+			Total: total,
+		},
+	}, nil
+}
+
+// GetSubsInDomainRole 查询域角色下所有鉴权主体，用户或者角色
+func (s *DomainRoleService) GetSubsInDomainRole(ctx context.Context, req *v1.GetSubsInDomainRoleReq) (*v1.GetSubsInDomainRoleRpl, error) {
+	subs, err := s.uc.GetSubsInDomainRole(ctx, req.DomainName, req.RoleName)
+	if err != nil {
+		return nil, err
+	}
+	var resData []*v1.GetSubsInDomainRoleRpl_Data
+	for _, s := range subs {
+		resData = append(resData, &v1.GetSubsInDomainRoleRpl_Data{
+			Id:   s["id"],
+			Name: s["name"],
+		})
+	}
+	return &v1.GetSubsInDomainRoleRpl{
 		Code:    0,
 		Message: "ok!",
 		Data:    resData,
 	}, nil
-}
-
-// GetDomainSubsForRole 查询域角色下所有用户以及对应的权限
-func (s *DomainRoleService) GetDomainSubsForRole(ctx context.Context, req *v1.GetDomainSubsForRoleReq) (*v1.GetDomainSubsForRoleRpl, error) {
-	panic(1)
 }
 
 // AddRoleForSubInDomain 为用户添加域角色或者为角色继承另一个角色权限

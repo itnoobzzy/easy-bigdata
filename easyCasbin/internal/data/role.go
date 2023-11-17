@@ -2,13 +2,12 @@ package data
 
 import (
 	"context"
-	"errors"
-	"strconv"
-
 	v1 "easyCasbin/api/role/v1"
 	"easyCasbin/internal/biz"
+	"errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gorm"
+	"strconv"
 )
 
 type roleRepo struct {
@@ -61,13 +60,25 @@ func (r *roleRepo) DeleteDomainRole(ctx context.Context, domain, role string) (b
 	return true, nil
 }
 
-// GetDomainRoles 获取指定域下所有角色
-func (r *roleRepo) GetDomainRoles(ctx context.Context, domain string) ([]*biz.Role, error) {
+// GetDomainRoles 获取指定域下角色列表
+func (r *roleRepo) GetDomainRoles(ctx context.Context, domain, roleName string, offset, limit int) ([]*biz.Role, int32, error) {
 	var roles []*biz.Role
-	if err := r.data.db.Table("role").Where("domain=?", domain).Find(&roles).Error; err != nil {
-		return nil, err
+
+	query := r.data.db.Table("role").Where("domain=?", domain)
+	if roleName != "" {
+		query.Where("name LIKE ?", "%"+roleName+"%")
 	}
-	return roles, nil
+
+	total := int64(0)
+	query.Count(&total)
+	if offset >= 0 && limit > 0 {
+		query.Offset(offset).Limit(limit)
+	}
+
+	if err := query.Find(&roles).Error; err != nil {
+		return nil, 0, err
+	}
+	return roles, int32(total), nil
 }
 
 // CheckDomainRole 校验域角色是否存在
@@ -80,16 +91,12 @@ func (r *roleRepo) CheckDomainRole(ctx context.Context, domain, role string) (bo
 }
 
 // GetAllDomains 获取所有域
-func (r *roleRepo) GetAllDomains(ctx context.Context) ([]string, error) {
+func (r *roleRepo) GetAllDomains() ([]biz.Role, error) {
 	var roleList []biz.Role
-	domains := make([]string, 0)
-	if err := r.data.db.Distinct("Domain").Where("deleted_at is null").Find(&roleList).Error; err != nil {
-		return make([]string, 0), err
+	if err := r.data.db.Distinct("id", "domain", "name").Where("domain=name").Find(&roleList).Error; err != nil {
+		return nil, err
 	}
-	for _, role := range roleList {
-		domains = append(domains, role.Domain)
-	}
-	return domains, nil
+	return roleList, nil
 }
 
 // GetDomainRoleId 获取指定域角色的ID
@@ -114,6 +121,23 @@ func (r *roleRepo) GetRoleIdNameMap() (map[string]string, error) {
 		maps["role:"+strconv.Itoa(int(role.ID))] = role.Name
 	}
 	return maps, nil
+}
+
+// GetSubsInDomainRole 查询域角色下包含的鉴权主体：角色或者用户
+func (r *roleRepo) GetSubsInDomainRole(ctx context.Context, domain, role string) (*[]biz.CasbinRule, error) {
+	var rules []biz.CasbinRule
+
+	// 查询出对应域本身的角色 id：域名和角色名相等
+	domainID, err := r.GetDomainRoleId(ctx, domain, domain)
+	// 查询出对应域角色的 id
+	roleId, err := r.GetDomainRoleId(ctx, domain, role)
+
+	result := r.data.db.Where(&biz.CasbinRule{V2: "role:" + strconv.Itoa(domainID), V1: "role:" + strconv.Itoa(roleId)}).Find(&rules)
+	if result.Error != nil {
+		return nil, err
+	}
+
+	return &rules, nil
 }
 
 func (r *roleRepo) CheckDomains(ctx context.Context, domains []string) (bool, error) {

@@ -2,6 +2,7 @@ package biz
 
 import (
 	casbin_rule_v1 "easyCasbin/api/casbin_rule/v1"
+	rv1 "easyCasbin/api/role/v1"
 	v1 "easyCasbin/api/user/v1"
 )
 
@@ -47,6 +48,40 @@ type BatchEnforceParams struct {
 type UpdatePermissionsParams struct {
 	OldPolicies []*PolicyParams
 	NewPolicies []*PolicyParams
+}
+
+// GetDomainAuthParams 查询域下权限规则列表所需参数
+type GetDomainAuthParams struct {
+	domain string
+	search string
+	limit  int
+	offset int
+}
+
+// GetDomainRolesParams 查询域下角色列表
+type GetDomainRolesParams struct {
+	domain   string
+	roleName string
+	limit    int
+	offset   int
+}
+
+func NewGetDomainRolesParams(req *rv1.GetDomainRolesReq) *GetDomainRolesParams {
+	return &GetDomainRolesParams{
+		domain:   req.DomainName,
+		roleName: req.RoleName,
+		limit:    int(req.PageSize),
+		offset:   int((req.PageNum - 1) * req.PageSize),
+	}
+}
+
+func NewGetDomainAuthParams(req *casbin_rule_v1.GetDomainAuthReq) (*GetDomainAuthParams, error) {
+	return &GetDomainAuthParams{
+		domain: req.Domain,
+		search: req.Search,
+		limit:  int(req.PageSize),
+		offset: int((req.PageNum - 1) * req.PageSize),
+	}, nil
 }
 
 func NewBatchEnforceParams(policies *casbin_rule_v1.BatchEnforceReq) (*BatchEnforceParams, error) {

@@ -25,6 +25,7 @@ const OperationCasbinRuleBatchEnforce = "/api.casbin_rule.v1.CasbinRule/BatchEnf
 const OperationCasbinRuleDeleteDomain = "/api.casbin_rule.v1.CasbinRule/DeleteDomain"
 const OperationCasbinRuleDeletePermissions = "/api.casbin_rule.v1.CasbinRule/DeletePermissions"
 const OperationCasbinRuleGetAllSubjects = "/api.casbin_rule.v1.CasbinRule/GetAllSubjects"
+const OperationCasbinRuleGetDomainAuth = "/api.casbin_rule.v1.CasbinRule/GetDomainAuth"
 const OperationCasbinRuleGetPermissions = "/api.casbin_rule.v1.CasbinRule/GetPermissions"
 const OperationCasbinRuleUpdatePermissions = "/api.casbin_rule.v1.CasbinRule/UpdatePermissions"
 
@@ -39,6 +40,8 @@ type CasbinRuleHTTPServer interface {
 	DeletePermissions(context.Context, *DeletePermissionsReq) (*DeletePermissionsRpl, error)
 	// GetAllSubjects 获取所有鉴权主体
 	GetAllSubjects(context.Context, *emptypb.Empty) (*GetAllSubjectsRpl, error)
+	// GetDomainAuth 获取域下权限规则列表
+	GetDomainAuth(context.Context, *GetDomainAuthReq) (*GetDomainAuthRpl, error)
 	// GetPermissions 获取鉴权主体所有权限
 	GetPermissions(context.Context, *GetPermissionsReq) (*GetPermissionsRpl, error)
 	// UpdatePermissions 为鉴权主体批量更新权限
@@ -48,6 +51,7 @@ type CasbinRuleHTTPServer interface {
 func RegisterCasbinRuleHTTPServer(s *http.Server, srv CasbinRuleHTTPServer) {
 	r := s.Route("/")
 	r.GET("/easyCasbin/api/casbin_rule/v1/subs", _CasbinRule_GetAllSubjects0_HTTP_Handler(srv))
+	r.GET("/easyCasbin/api/casbin_rule/v1/domain_auth", _CasbinRule_GetDomainAuth0_HTTP_Handler(srv))
 	r.DELETE("/easyCasbin/api/casbin_rule/v1/domain", _CasbinRule_DeleteDomain0_HTTP_Handler(srv))
 	r.POST("/easyCasbin/api/casbin_rule/v1/enforce_policies", _CasbinRule_BatchEnforce0_HTTP_Handler(srv))
 	r.POST("/easyCasbin/api/casbin_rule/v1/permissions", _CasbinRule_AddPermissions0_HTTP_Handler(srv))
@@ -71,6 +75,25 @@ func _CasbinRule_GetAllSubjects0_HTTP_Handler(srv CasbinRuleHTTPServer) func(ctx
 			return err
 		}
 		reply := out.(*GetAllSubjectsRpl)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _CasbinRule_GetDomainAuth0_HTTP_Handler(srv CasbinRuleHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in GetDomainAuthReq
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationCasbinRuleGetDomainAuth)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetDomainAuth(ctx, req.(*GetDomainAuthReq))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetDomainAuthRpl)
 		return ctx.Result(200, reply)
 	}
 }
@@ -207,6 +230,7 @@ type CasbinRuleHTTPClient interface {
 	DeleteDomain(ctx context.Context, req *DeleteDomainReq, opts ...http.CallOption) (rsp *DeleteDomainRpl, err error)
 	DeletePermissions(ctx context.Context, req *DeletePermissionsReq, opts ...http.CallOption) (rsp *DeletePermissionsRpl, err error)
 	GetAllSubjects(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetAllSubjectsRpl, err error)
+	GetDomainAuth(ctx context.Context, req *GetDomainAuthReq, opts ...http.CallOption) (rsp *GetDomainAuthRpl, err error)
 	GetPermissions(ctx context.Context, req *GetPermissionsReq, opts ...http.CallOption) (rsp *GetPermissionsRpl, err error)
 	UpdatePermissions(ctx context.Context, req *UpdatePermissionsReq, opts ...http.CallOption) (rsp *UpdatePermissionsRpl, err error)
 }
@@ -276,6 +300,19 @@ func (c *CasbinRuleHTTPClientImpl) GetAllSubjects(ctx context.Context, in *empty
 	pattern := "/easyCasbin/api/casbin_rule/v1/subs"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationCasbinRuleGetAllSubjects))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *CasbinRuleHTTPClientImpl) GetDomainAuth(ctx context.Context, in *GetDomainAuthReq, opts ...http.CallOption) (*GetDomainAuthRpl, error) {
+	var out GetDomainAuthRpl
+	pattern := "/easyCasbin/api/casbin_rule/v1/domain_auth"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationCasbinRuleGetDomainAuth))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

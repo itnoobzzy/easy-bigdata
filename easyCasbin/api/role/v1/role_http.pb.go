@@ -10,6 +10,7 @@ import (
 	context "context"
 	http "github.com/go-kratos/kratos/v2/transport/http"
 	binding "github.com/go-kratos/kratos/v2/transport/http/binding"
+	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -23,8 +24,9 @@ const OperationDomainRoleAddDomainRole = "/api.role.v1.DomainRole/AddDomainRole"
 const OperationDomainRoleAddRoleForSubInDomain = "/api.role.v1.DomainRole/AddRoleForSubInDomain"
 const OperationDomainRoleDeleteRole = "/api.role.v1.DomainRole/DeleteRole"
 const OperationDomainRoleDeleteRoleForSubInDomain = "/api.role.v1.DomainRole/DeleteRoleForSubInDomain"
+const OperationDomainRoleGetAllDomains = "/api.role.v1.DomainRole/GetAllDomains"
 const OperationDomainRoleGetDomainRoles = "/api.role.v1.DomainRole/GetDomainRoles"
-const OperationDomainRoleGetDomainSubsForRole = "/api.role.v1.DomainRole/GetDomainSubsForRole"
+const OperationDomainRoleGetSubsInDomainRole = "/api.role.v1.DomainRole/GetSubsInDomainRole"
 const OperationDomainRoleUpdateRoleInfo = "/api.role.v1.DomainRole/UpdateRoleInfo"
 
 type DomainRoleHTTPServer interface {
@@ -36,23 +38,45 @@ type DomainRoleHTTPServer interface {
 	DeleteRole(context.Context, *DeleteDomainRoleReq) (*DeleteDomainRoleRpl, error)
 	// DeleteRoleForSubInDomain DeleteRoleForSubInDomain 删除角色下subject（鉴权主体）
 	DeleteRoleForSubInDomain(context.Context, *DeleteRoleForSubInDomainReq) (*DeleteRoleForSubInDomainRpl, error)
-	// GetDomainRoles GetDomainRoles 获取指定域下所有角色
-	GetDomainRoles(context.Context, *GetAllRolesReq) (*GetAllRolesRpl, error)
-	// GetDomainSubsForRole GetDomainSubsForRole 获取指定域角色下所有用户
-	GetDomainSubsForRole(context.Context, *GetDomainSubsForRoleReq) (*GetDomainSubsForRoleRpl, error)
+	// GetAllDomains 获取所有域
+	GetAllDomains(context.Context, *emptypb.Empty) (*GetAllDomainsRpl, error)
+	// GetDomainRoles GetDomainRoles 获取指定域下角色列表
+	GetDomainRoles(context.Context, *GetDomainRolesReq) (*GetDomainRolesRpl, error)
+	// GetSubsInDomainRole GetSubsInDomainRole 获取指定域角色下所有鉴权主体，包括用户与角色
+	GetSubsInDomainRole(context.Context, *GetSubsInDomainRoleReq) (*GetSubsInDomainRoleRpl, error)
 	// UpdateRoleInfo 更新域角色信息
 	UpdateRoleInfo(context.Context, *UpdateDomainRoleReq) (*UpdateDomainRoleRpl, error)
 }
 
 func RegisterDomainRoleHTTPServer(s *http.Server, srv DomainRoleHTTPServer) {
 	r := s.Route("/")
+	r.GET("/easyCasbin/api/v1/domains", _DomainRole_GetAllDomains0_HTTP_Handler(srv))
 	r.POST("/easyCasbin/api/v1/domain_role", _DomainRole_AddDomainRole0_HTTP_Handler(srv))
 	r.PUT("/easyCasbin/api/v1/domain_role", _DomainRole_UpdateRoleInfo0_HTTP_Handler(srv))
 	r.DELETE("/easyCasbin/api/v1/domain_role", _DomainRole_DeleteRole0_HTTP_Handler(srv))
 	r.GET("/easyCasbin/api/v1/domain_roles/{domainName}", _DomainRole_GetDomainRoles0_HTTP_Handler(srv))
-	r.GET("/easyCasbin/api/v1/domain_roles/subs", _DomainRole_GetDomainSubsForRole0_HTTP_Handler(srv))
+	r.GET("/easyCasbin/api/v1/subsInDomainRole", _DomainRole_GetSubsInDomainRole0_HTTP_Handler(srv))
 	r.POST("/easyCasbin/api/v1/domain_roles/{domain}/{sub}/role", _DomainRole_AddRoleForSubInDomain0_HTTP_Handler(srv))
 	r.DELETE("/easyCasbin/api/v1/domain_roles/{domain}/role_sub", _DomainRole_DeleteRoleForSubInDomain0_HTTP_Handler(srv))
+}
+
+func _DomainRole_GetAllDomains0_HTTP_Handler(srv DomainRoleHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in emptypb.Empty
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationDomainRoleGetAllDomains)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.GetAllDomains(ctx, req.(*emptypb.Empty))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*GetAllDomainsRpl)
+		return ctx.Result(200, reply)
+	}
 }
 
 func _DomainRole_AddDomainRole0_HTTP_Handler(srv DomainRoleHTTPServer) func(ctx http.Context) error {
@@ -120,7 +144,7 @@ func _DomainRole_DeleteRole0_HTTP_Handler(srv DomainRoleHTTPServer) func(ctx htt
 
 func _DomainRole_GetDomainRoles0_HTTP_Handler(srv DomainRoleHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetAllRolesReq
+		var in GetDomainRolesReq
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
@@ -129,32 +153,32 @@ func _DomainRole_GetDomainRoles0_HTTP_Handler(srv DomainRoleHTTPServer) func(ctx
 		}
 		http.SetOperation(ctx, OperationDomainRoleGetDomainRoles)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetDomainRoles(ctx, req.(*GetAllRolesReq))
+			return srv.GetDomainRoles(ctx, req.(*GetDomainRolesReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*GetAllRolesRpl)
+		reply := out.(*GetDomainRolesRpl)
 		return ctx.Result(200, reply)
 	}
 }
 
-func _DomainRole_GetDomainSubsForRole0_HTTP_Handler(srv DomainRoleHTTPServer) func(ctx http.Context) error {
+func _DomainRole_GetSubsInDomainRole0_HTTP_Handler(srv DomainRoleHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
-		var in GetDomainSubsForRoleReq
+		var in GetSubsInDomainRoleReq
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
-		http.SetOperation(ctx, OperationDomainRoleGetDomainSubsForRole)
+		http.SetOperation(ctx, OperationDomainRoleGetSubsInDomainRole)
 		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
-			return srv.GetDomainSubsForRole(ctx, req.(*GetDomainSubsForRoleReq))
+			return srv.GetSubsInDomainRole(ctx, req.(*GetSubsInDomainRoleReq))
 		})
 		out, err := h(ctx, &in)
 		if err != nil {
 			return err
 		}
-		reply := out.(*GetDomainSubsForRoleRpl)
+		reply := out.(*GetSubsInDomainRoleRpl)
 		return ctx.Result(200, reply)
 	}
 }
@@ -211,8 +235,9 @@ type DomainRoleHTTPClient interface {
 	AddRoleForSubInDomain(ctx context.Context, req *AddRoleForSubInDomainReq, opts ...http.CallOption) (rsp *AddRoleForSubInDomainRpl, err error)
 	DeleteRole(ctx context.Context, req *DeleteDomainRoleReq, opts ...http.CallOption) (rsp *DeleteDomainRoleRpl, err error)
 	DeleteRoleForSubInDomain(ctx context.Context, req *DeleteRoleForSubInDomainReq, opts ...http.CallOption) (rsp *DeleteRoleForSubInDomainRpl, err error)
-	GetDomainRoles(ctx context.Context, req *GetAllRolesReq, opts ...http.CallOption) (rsp *GetAllRolesRpl, err error)
-	GetDomainSubsForRole(ctx context.Context, req *GetDomainSubsForRoleReq, opts ...http.CallOption) (rsp *GetDomainSubsForRoleRpl, err error)
+	GetAllDomains(ctx context.Context, req *emptypb.Empty, opts ...http.CallOption) (rsp *GetAllDomainsRpl, err error)
+	GetDomainRoles(ctx context.Context, req *GetDomainRolesReq, opts ...http.CallOption) (rsp *GetDomainRolesRpl, err error)
+	GetSubsInDomainRole(ctx context.Context, req *GetSubsInDomainRoleReq, opts ...http.CallOption) (rsp *GetSubsInDomainRoleRpl, err error)
 	UpdateRoleInfo(ctx context.Context, req *UpdateDomainRoleReq, opts ...http.CallOption) (rsp *UpdateDomainRoleRpl, err error)
 }
 
@@ -276,8 +301,21 @@ func (c *DomainRoleHTTPClientImpl) DeleteRoleForSubInDomain(ctx context.Context,
 	return &out, err
 }
 
-func (c *DomainRoleHTTPClientImpl) GetDomainRoles(ctx context.Context, in *GetAllRolesReq, opts ...http.CallOption) (*GetAllRolesRpl, error) {
-	var out GetAllRolesRpl
+func (c *DomainRoleHTTPClientImpl) GetAllDomains(ctx context.Context, in *emptypb.Empty, opts ...http.CallOption) (*GetAllDomainsRpl, error) {
+	var out GetAllDomainsRpl
+	pattern := "/easyCasbin/api/v1/domains"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationDomainRoleGetAllDomains))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *DomainRoleHTTPClientImpl) GetDomainRoles(ctx context.Context, in *GetDomainRolesReq, opts ...http.CallOption) (*GetDomainRolesRpl, error) {
+	var out GetDomainRolesRpl
 	pattern := "/easyCasbin/api/v1/domain_roles/{domainName}"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationDomainRoleGetDomainRoles))
@@ -289,11 +327,11 @@ func (c *DomainRoleHTTPClientImpl) GetDomainRoles(ctx context.Context, in *GetAl
 	return &out, err
 }
 
-func (c *DomainRoleHTTPClientImpl) GetDomainSubsForRole(ctx context.Context, in *GetDomainSubsForRoleReq, opts ...http.CallOption) (*GetDomainSubsForRoleRpl, error) {
-	var out GetDomainSubsForRoleRpl
-	pattern := "/easyCasbin/api/v1/domain_roles/subs"
+func (c *DomainRoleHTTPClientImpl) GetSubsInDomainRole(ctx context.Context, in *GetSubsInDomainRoleReq, opts ...http.CallOption) (*GetSubsInDomainRoleRpl, error) {
+	var out GetSubsInDomainRoleRpl
+	pattern := "/easyCasbin/api/v1/subsInDomainRole"
 	path := binding.EncodeURL(pattern, in, true)
-	opts = append(opts, http.Operation(OperationDomainRoleGetDomainSubsForRole))
+	opts = append(opts, http.Operation(OperationDomainRoleGetSubsInDomainRole))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

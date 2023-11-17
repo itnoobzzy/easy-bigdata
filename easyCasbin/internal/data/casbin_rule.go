@@ -2,11 +2,11 @@ package data
 
 import (
 	"context"
-
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"github.com/go-kratos/kratos/v2/log"
+	"strconv"
 
 	"easyCasbin/internal/biz"
 	"easyCasbin/internal/conf"
@@ -71,18 +71,31 @@ func (c *CasbinRuleRepo) GetImplicitPermissionsForUser(ctx context.Context, user
 }
 
 // GetAllPolicyInDomain 获取指定域的所有权限
-func (c *CasbinRuleRepo) GetAllPolicyInDomain(ctx context.Context, domain string) (policies [][]string, err error) {
+func (c *CasbinRuleRepo) GetAllPolicyInDomain(ctx context.Context, domain, search string, offset, limit int) (policies [][]string, count int32, err error) {
 	var rules []biz.CasbinRule
-	result := c.data.db.Where(&biz.CasbinRule{V1: domain}).Find(&rules)
-	if result.Error != nil {
-		return policies, err
+	searchSql := "%" + search + "%"
+	query := c.data.db.Model(&biz.CasbinRule{}).Where(&biz.CasbinRule{V1: domain})
+
+	if search != "" {
+		query = query.Where("v0 LIKE ? or v1 LIKE ? or v2 LIKE ?", searchSql, searchSql, searchSql)
+	}
+
+	total := int64(0)
+	query.Count(&total)
+	if limit > 0 && offset >= 0 {
+		query = query.Limit(limit).Offset(offset)
+	}
+	query = query.Find(&rules)
+
+	if query.Error != nil {
+		return policies, 0, err
 	}
 	for _, r := range rules {
-		p := make([]string, 0, 5)
-		p = append(p, r.V0, r.V1, r.V2, r.V3, r.V4)
+		p := make([]string, 0)
+		p = append(p, strconv.Itoa(int(r.ID)), r.Ptype, r.V0, r.V1, r.V2, r.V3, r.V4, r.V5)
 		policies = append(policies, p)
 	}
-	return policies, nil
+	return policies, int32(total), nil
 }
 
 // DeleteDomain 删除域

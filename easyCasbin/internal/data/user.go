@@ -113,7 +113,7 @@ func (r *userRepo) UserByMobile(ctx context.Context, mobile string) (*biz.User, 
 	return &user, nil
 }
 
-func (r *userRepo) GetUserById(ctx context.Context, Id int64) (*biz.User, error) {
+func (r *userRepo) GetUserById(ctx context.Context, Id int32) (*biz.User, error) {
 	var user biz.User
 	if err := r.data.db.Where(&biz.User{ID: Id}).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

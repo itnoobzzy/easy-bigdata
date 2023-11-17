@@ -50,7 +50,7 @@ func (c *JSON) Scan(input interface{}) error {
 }
 
 type User struct {
-	ID             int64      `gorm:"primarykey"`
+	ID             int32      `gorm:"primarykey"`
 	FirstName      string     `json:"first_name" gorm:"type:text"`
 	LastName       string     `json:"last_name" gorm:"type:text"`
 	Username       string     `json:"username" gorm:"type:text"`
@@ -85,7 +85,7 @@ type UserRepo interface {
 	CreateUser(context.Context, *User) (*User, error)
 	ListUser(ctx context.Context, pageNum, pageSize int) ([]*User, int, error)
 	UserByMobile(ctx context.Context, mobile string) (*User, error)
-	GetUserById(ctx context.Context, id int64) (*User, error)
+	GetUserById(ctx context.Context, id int32) (*User, error)
 	GetUserByName(ctx context.Context, name string) (*User, error)
 	UpdateUser(context.Context, *User) (bool, error)
 }
@@ -120,7 +120,7 @@ func (uc *UserUsecase) Login(ctx context.Context, loginReq *LoginRequest,
 	return &LoginResponse{
 		User:      UserInfoResponse{user.ID, user.Mobile, user.Username},
 		Token:     token,
-		ExpiresAt: (time.Now().Unix() + uc.sc.Jwt.ExpiresTime) * 1000,
+		ExpiresAt: int32((time.Now().Unix() + uc.sc.Jwt.ExpiresTime) * 1000),
 	}, nil
 }
 
@@ -137,7 +137,7 @@ func (uc *UserUsecase) UserByMobile(ctx context.Context, mobile string) (*User, 
 	return uc.repo.UserByMobile(ctx, mobile)
 }
 
-func (uc *UserUsecase) GetUserById(ctx context.Context, id int64) (*User, error) {
+func (uc *UserUsecase) GetUserById(ctx context.Context, id int32) (*User, error) {
 	return uc.repo.GetUserById(ctx, id)
 }
 

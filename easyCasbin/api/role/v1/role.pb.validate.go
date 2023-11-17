@@ -833,142 +833,29 @@ var _ interface {
 	ErrorName() string
 } = DeleteDomainRoleRplValidationError{}
 
-// Validate checks the field values on GetAllRolesReq with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *GetAllRolesReq) Validate() error {
+// Validate checks the field values on GetAllDomainsRpl with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetAllDomainsRpl) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetAllRolesReq with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in GetAllRolesReqMultiError,
-// or nil if none found.
-func (m *GetAllRolesReq) ValidateAll() error {
+// ValidateAll checks the field values on GetAllDomainsRpl with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetAllDomainsRplMultiError, or nil if none found.
+func (m *GetAllDomainsRpl) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetAllRolesReq) validate(all bool) error {
+func (m *GetAllDomainsRpl) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	if !_GetAllRolesReq_DomainName_Pattern.MatchString(m.GetDomainName()) {
-		err := GetAllRolesReqValidationError{
-			field:  "DomainName",
-			reason: "value does not match regex pattern \"^[0-9a-zA-Z_]{1,}$\"",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if len(errors) > 0 {
-		return GetAllRolesReqMultiError(errors)
-	}
-
-	return nil
-}
-
-// GetAllRolesReqMultiError is an error wrapping multiple validation errors
-// returned by GetAllRolesReq.ValidateAll() if the designated constraints
-// aren't met.
-type GetAllRolesReqMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m GetAllRolesReqMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m GetAllRolesReqMultiError) AllErrors() []error { return m }
-
-// GetAllRolesReqValidationError is the validation error returned by
-// GetAllRolesReq.Validate if the designated constraints aren't met.
-type GetAllRolesReqValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e GetAllRolesReqValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e GetAllRolesReqValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e GetAllRolesReqValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e GetAllRolesReqValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e GetAllRolesReqValidationError) ErrorName() string { return "GetAllRolesReqValidationError" }
-
-// Error satisfies the builtin error interface
-func (e GetAllRolesReqValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sGetAllRolesReq.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = GetAllRolesReqValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = GetAllRolesReqValidationError{}
-
-var _GetAllRolesReq_DomainName_Pattern = regexp.MustCompile("^[0-9a-zA-Z_]{1,}$")
-
-// Validate checks the field values on GetAllRolesRpl with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *GetAllRolesRpl) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on GetAllRolesRpl with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in GetAllRolesRplMultiError,
-// or nil if none found.
-func (m *GetAllRolesRpl) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *GetAllRolesRpl) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	// no validation rules for Code
+	// no validation rules for Status
 
 	// no validation rules for Message
 
@@ -979,7 +866,7 @@ func (m *GetAllRolesRpl) validate(all bool) error {
 			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, GetAllRolesRplValidationError{
+					errors = append(errors, GetAllDomainsRplValidationError{
 						field:  fmt.Sprintf("Data[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -987,7 +874,7 @@ func (m *GetAllRolesRpl) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, GetAllRolesRplValidationError{
+					errors = append(errors, GetAllDomainsRplValidationError{
 						field:  fmt.Sprintf("Data[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -996,7 +883,7 @@ func (m *GetAllRolesRpl) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return GetAllRolesRplValidationError{
+				return GetAllDomainsRplValidationError{
 					field:  fmt.Sprintf("Data[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1007,19 +894,19 @@ func (m *GetAllRolesRpl) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return GetAllRolesRplMultiError(errors)
+		return GetAllDomainsRplMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetAllRolesRplMultiError is an error wrapping multiple validation errors
-// returned by GetAllRolesRpl.ValidateAll() if the designated constraints
+// GetAllDomainsRplMultiError is an error wrapping multiple validation errors
+// returned by GetAllDomainsRpl.ValidateAll() if the designated constraints
 // aren't met.
-type GetAllRolesRplMultiError []error
+type GetAllDomainsRplMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetAllRolesRplMultiError) Error() string {
+func (m GetAllDomainsRplMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1028,11 +915,11 @@ func (m GetAllRolesRplMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetAllRolesRplMultiError) AllErrors() []error { return m }
+func (m GetAllDomainsRplMultiError) AllErrors() []error { return m }
 
-// GetAllRolesRplValidationError is the validation error returned by
-// GetAllRolesRpl.Validate if the designated constraints aren't met.
-type GetAllRolesRplValidationError struct {
+// GetAllDomainsRplValidationError is the validation error returned by
+// GetAllDomainsRpl.Validate if the designated constraints aren't met.
+type GetAllDomainsRplValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1040,22 +927,22 @@ type GetAllRolesRplValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetAllRolesRplValidationError) Field() string { return e.field }
+func (e GetAllDomainsRplValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetAllRolesRplValidationError) Reason() string { return e.reason }
+func (e GetAllDomainsRplValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetAllRolesRplValidationError) Cause() error { return e.cause }
+func (e GetAllDomainsRplValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetAllRolesRplValidationError) Key() bool { return e.key }
+func (e GetAllDomainsRplValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetAllRolesRplValidationError) ErrorName() string { return "GetAllRolesRplValidationError" }
+func (e GetAllDomainsRplValidationError) ErrorName() string { return "GetAllDomainsRplValidationError" }
 
 // Error satisfies the builtin error interface
-func (e GetAllRolesRplValidationError) Error() string {
+func (e GetAllDomainsRplValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1067,14 +954,14 @@ func (e GetAllRolesRplValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetAllRolesRpl.%s: %s%s",
+		"invalid %sGetAllDomainsRpl.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetAllRolesRplValidationError{}
+var _ error = GetAllDomainsRplValidationError{}
 
 var _ interface {
 	Field() string
@@ -1082,7 +969,281 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetAllRolesRplValidationError{}
+} = GetAllDomainsRplValidationError{}
+
+// Validate checks the field values on GetDomainRolesReq with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetDomainRolesReq) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetDomainRolesReq with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetDomainRolesReqMultiError, or nil if none found.
+func (m *GetDomainRolesReq) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetDomainRolesReq) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if !_GetDomainRolesReq_DomainName_Pattern.MatchString(m.GetDomainName()) {
+		err := GetDomainRolesReqValidationError{
+			field:  "DomainName",
+			reason: "value does not match regex pattern \"^[0-9a-zA-Z_]{1,}$\"",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for RoleName
+
+	if m.GetPageSize() <= 0 {
+		err := GetDomainRolesReqValidationError{
+			field:  "PageSize",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.GetPageNum() <= 0 {
+		err := GetDomainRolesReqValidationError{
+			field:  "PageNum",
+			reason: "value must be greater than 0",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetDomainRolesReqMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetDomainRolesReqMultiError is an error wrapping multiple validation errors
+// returned by GetDomainRolesReq.ValidateAll() if the designated constraints
+// aren't met.
+type GetDomainRolesReqMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetDomainRolesReqMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetDomainRolesReqMultiError) AllErrors() []error { return m }
+
+// GetDomainRolesReqValidationError is the validation error returned by
+// GetDomainRolesReq.Validate if the designated constraints aren't met.
+type GetDomainRolesReqValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetDomainRolesReqValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetDomainRolesReqValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetDomainRolesReqValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetDomainRolesReqValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetDomainRolesReqValidationError) ErrorName() string {
+	return "GetDomainRolesReqValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetDomainRolesReqValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetDomainRolesReq.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetDomainRolesReqValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetDomainRolesReqValidationError{}
+
+var _GetDomainRolesReq_DomainName_Pattern = regexp.MustCompile("^[0-9a-zA-Z_]{1,}$")
+
+// Validate checks the field values on GetDomainRolesRpl with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetDomainRolesRpl) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetDomainRolesRpl with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetDomainRolesRplMultiError, or nil if none found.
+func (m *GetDomainRolesRpl) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetDomainRolesRpl) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Status
+
+	// no validation rules for Message
+
+	if all {
+		switch v := interface{}(m.GetData()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetDomainRolesRplValidationError{
+					field:  "Data",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetDomainRolesRplValidationError{
+					field:  "Data",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetData()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetDomainRolesRplValidationError{
+				field:  "Data",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return GetDomainRolesRplMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetDomainRolesRplMultiError is an error wrapping multiple validation errors
+// returned by GetDomainRolesRpl.ValidateAll() if the designated constraints
+// aren't met.
+type GetDomainRolesRplMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetDomainRolesRplMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetDomainRolesRplMultiError) AllErrors() []error { return m }
+
+// GetDomainRolesRplValidationError is the validation error returned by
+// GetDomainRolesRpl.Validate if the designated constraints aren't met.
+type GetDomainRolesRplValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetDomainRolesRplValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetDomainRolesRplValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetDomainRolesRplValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetDomainRolesRplValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetDomainRolesRplValidationError) ErrorName() string {
+	return "GetDomainRolesRplValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetDomainRolesRplValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetDomainRolesRpl.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetDomainRolesRplValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetDomainRolesRplValidationError{}
 
 // Validate checks the field values on AddRoleForSubInDomainReq with the rules
 // defined in the proto definition for this message. If any rules are
@@ -1331,32 +1492,32 @@ var _ interface {
 	ErrorName() string
 } = AddRoleForSubInDomainRplValidationError{}
 
-// Validate checks the field values on GetDomainSubsForRoleReq with the rules
+// Validate checks the field values on GetSubsInDomainRoleReq with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *GetDomainSubsForRoleReq) Validate() error {
+func (m *GetSubsInDomainRoleReq) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetDomainSubsForRoleReq with the
-// rules defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on GetSubsInDomainRoleReq with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// GetDomainSubsForRoleReqMultiError, or nil if none found.
-func (m *GetDomainSubsForRoleReq) ValidateAll() error {
+// GetSubsInDomainRoleReqMultiError, or nil if none found.
+func (m *GetSubsInDomainRoleReq) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetDomainSubsForRoleReq) validate(all bool) error {
+func (m *GetSubsInDomainRoleReq) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	if !_GetDomainSubsForRoleReq_DomainName_Pattern.MatchString(m.GetDomainName()) {
-		err := GetDomainSubsForRoleReqValidationError{
+	if utf8.RuneCountInString(m.GetDomainName()) < 1 {
+		err := GetSubsInDomainRoleReqValidationError{
 			field:  "DomainName",
-			reason: "value does not match regex pattern \"^[0-9a-zA-Z_]{1,}$\"",
+			reason: "value length must be at least 1 runes",
 		}
 		if !all {
 			return err
@@ -1364,10 +1525,10 @@ func (m *GetDomainSubsForRoleReq) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if !_GetDomainSubsForRoleReq_RoleName_Pattern.MatchString(m.GetRoleName()) {
-		err := GetDomainSubsForRoleReqValidationError{
+	if utf8.RuneCountInString(m.GetRoleName()) < 1 {
+		err := GetSubsInDomainRoleReqValidationError{
 			field:  "RoleName",
-			reason: "value does not match regex pattern \"^[0-9a-zA-Z_]{1,}$\"",
+			reason: "value length must be at least 1 runes",
 		}
 		if !all {
 			return err
@@ -1376,19 +1537,19 @@ func (m *GetDomainSubsForRoleReq) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return GetDomainSubsForRoleReqMultiError(errors)
+		return GetSubsInDomainRoleReqMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetDomainSubsForRoleReqMultiError is an error wrapping multiple validation
-// errors returned by GetDomainSubsForRoleReq.ValidateAll() if the designated
+// GetSubsInDomainRoleReqMultiError is an error wrapping multiple validation
+// errors returned by GetSubsInDomainRoleReq.ValidateAll() if the designated
 // constraints aren't met.
-type GetDomainSubsForRoleReqMultiError []error
+type GetSubsInDomainRoleReqMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetDomainSubsForRoleReqMultiError) Error() string {
+func (m GetSubsInDomainRoleReqMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1397,11 +1558,11 @@ func (m GetDomainSubsForRoleReqMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetDomainSubsForRoleReqMultiError) AllErrors() []error { return m }
+func (m GetSubsInDomainRoleReqMultiError) AllErrors() []error { return m }
 
-// GetDomainSubsForRoleReqValidationError is the validation error returned by
-// GetDomainSubsForRoleReq.Validate if the designated constraints aren't met.
-type GetDomainSubsForRoleReqValidationError struct {
+// GetSubsInDomainRoleReqValidationError is the validation error returned by
+// GetSubsInDomainRoleReq.Validate if the designated constraints aren't met.
+type GetSubsInDomainRoleReqValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1409,24 +1570,24 @@ type GetDomainSubsForRoleReqValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetDomainSubsForRoleReqValidationError) Field() string { return e.field }
+func (e GetSubsInDomainRoleReqValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetDomainSubsForRoleReqValidationError) Reason() string { return e.reason }
+func (e GetSubsInDomainRoleReqValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetDomainSubsForRoleReqValidationError) Cause() error { return e.cause }
+func (e GetSubsInDomainRoleReqValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetDomainSubsForRoleReqValidationError) Key() bool { return e.key }
+func (e GetSubsInDomainRoleReqValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetDomainSubsForRoleReqValidationError) ErrorName() string {
-	return "GetDomainSubsForRoleReqValidationError"
+func (e GetSubsInDomainRoleReqValidationError) ErrorName() string {
+	return "GetSubsInDomainRoleReqValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e GetDomainSubsForRoleReqValidationError) Error() string {
+func (e GetSubsInDomainRoleReqValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1438,14 +1599,14 @@ func (e GetDomainSubsForRoleReqValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetDomainSubsForRoleReq.%s: %s%s",
+		"invalid %sGetSubsInDomainRoleReq.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetDomainSubsForRoleReqValidationError{}
+var _ error = GetSubsInDomainRoleReqValidationError{}
 
 var _ interface {
 	Field() string
@@ -1453,28 +1614,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetDomainSubsForRoleReqValidationError{}
+} = GetSubsInDomainRoleReqValidationError{}
 
-var _GetDomainSubsForRoleReq_DomainName_Pattern = regexp.MustCompile("^[0-9a-zA-Z_]{1,}$")
-
-var _GetDomainSubsForRoleReq_RoleName_Pattern = regexp.MustCompile("^[0-9a-zA-Z_]{1,}$")
-
-// Validate checks the field values on GetDomainSubsForRoleRpl with the rules
+// Validate checks the field values on GetSubsInDomainRoleRpl with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *GetDomainSubsForRoleRpl) Validate() error {
+func (m *GetSubsInDomainRoleRpl) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetDomainSubsForRoleRpl with the
-// rules defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on GetSubsInDomainRoleRpl with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// GetDomainSubsForRoleRplMultiError, or nil if none found.
-func (m *GetDomainSubsForRoleRpl) ValidateAll() error {
+// GetSubsInDomainRoleRplMultiError, or nil if none found.
+func (m *GetSubsInDomainRoleRpl) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetDomainSubsForRoleRpl) validate(all bool) error {
+func (m *GetSubsInDomainRoleRpl) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1492,7 +1649,7 @@ func (m *GetDomainSubsForRoleRpl) validate(all bool) error {
 			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, GetDomainSubsForRoleRplValidationError{
+					errors = append(errors, GetSubsInDomainRoleRplValidationError{
 						field:  fmt.Sprintf("Data[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -1500,7 +1657,7 @@ func (m *GetDomainSubsForRoleRpl) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, GetDomainSubsForRoleRplValidationError{
+					errors = append(errors, GetSubsInDomainRoleRplValidationError{
 						field:  fmt.Sprintf("Data[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -1509,7 +1666,7 @@ func (m *GetDomainSubsForRoleRpl) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return GetDomainSubsForRoleRplValidationError{
+				return GetSubsInDomainRoleRplValidationError{
 					field:  fmt.Sprintf("Data[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -1520,19 +1677,19 @@ func (m *GetDomainSubsForRoleRpl) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return GetDomainSubsForRoleRplMultiError(errors)
+		return GetSubsInDomainRoleRplMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetDomainSubsForRoleRplMultiError is an error wrapping multiple validation
-// errors returned by GetDomainSubsForRoleRpl.ValidateAll() if the designated
+// GetSubsInDomainRoleRplMultiError is an error wrapping multiple validation
+// errors returned by GetSubsInDomainRoleRpl.ValidateAll() if the designated
 // constraints aren't met.
-type GetDomainSubsForRoleRplMultiError []error
+type GetSubsInDomainRoleRplMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetDomainSubsForRoleRplMultiError) Error() string {
+func (m GetSubsInDomainRoleRplMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1541,11 +1698,11 @@ func (m GetDomainSubsForRoleRplMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetDomainSubsForRoleRplMultiError) AllErrors() []error { return m }
+func (m GetSubsInDomainRoleRplMultiError) AllErrors() []error { return m }
 
-// GetDomainSubsForRoleRplValidationError is the validation error returned by
-// GetDomainSubsForRoleRpl.Validate if the designated constraints aren't met.
-type GetDomainSubsForRoleRplValidationError struct {
+// GetSubsInDomainRoleRplValidationError is the validation error returned by
+// GetSubsInDomainRoleRpl.Validate if the designated constraints aren't met.
+type GetSubsInDomainRoleRplValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1553,24 +1710,24 @@ type GetDomainSubsForRoleRplValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetDomainSubsForRoleRplValidationError) Field() string { return e.field }
+func (e GetSubsInDomainRoleRplValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetDomainSubsForRoleRplValidationError) Reason() string { return e.reason }
+func (e GetSubsInDomainRoleRplValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetDomainSubsForRoleRplValidationError) Cause() error { return e.cause }
+func (e GetSubsInDomainRoleRplValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetDomainSubsForRoleRplValidationError) Key() bool { return e.key }
+func (e GetSubsInDomainRoleRplValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetDomainSubsForRoleRplValidationError) ErrorName() string {
-	return "GetDomainSubsForRoleRplValidationError"
+func (e GetSubsInDomainRoleRplValidationError) ErrorName() string {
+	return "GetSubsInDomainRoleRplValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e GetDomainSubsForRoleRplValidationError) Error() string {
+func (e GetSubsInDomainRoleRplValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1582,14 +1739,14 @@ func (e GetDomainSubsForRoleRplValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetDomainSubsForRoleRpl.%s: %s%s",
+		"invalid %sGetSubsInDomainRoleRpl.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetDomainSubsForRoleRplValidationError{}
+var _ error = GetSubsInDomainRoleRplValidationError{}
 
 var _ interface {
 	Field() string
@@ -1597,7 +1754,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetDomainSubsForRoleRplValidationError{}
+} = GetSubsInDomainRoleRplValidationError{}
 
 // Validate checks the field values on DeleteRoleForSubInDomainReq with the
 // rules defined in the proto definition for this message. If any rules are
@@ -2172,22 +2329,22 @@ var _ interface {
 	ErrorName() string
 } = DeleteDomainRoleRpl_DataValidationError{}
 
-// Validate checks the field values on GetAllRolesRpl_Data with the rules
+// Validate checks the field values on GetAllDomainsRpl_Data with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *GetAllRolesRpl_Data) Validate() error {
+func (m *GetAllDomainsRpl_Data) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetAllRolesRpl_Data with the rules
+// ValidateAll checks the field values on GetAllDomainsRpl_Data with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// GetAllRolesRpl_DataMultiError, or nil if none found.
-func (m *GetAllRolesRpl_Data) ValidateAll() error {
+// GetAllDomainsRpl_DataMultiError, or nil if none found.
+func (m *GetAllDomainsRpl_Data) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetAllRolesRpl_Data) validate(all bool) error {
+func (m *GetAllDomainsRpl_Data) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -2196,28 +2353,24 @@ func (m *GetAllRolesRpl_Data) validate(all bool) error {
 
 	// no validation rules for Id
 
-	// no validation rules for CreateTime
-
-	// no validation rules for UpdateTime
+	// no validation rules for Domain
 
 	// no validation rules for Name
 
-	// no validation rules for Domain
-
 	if len(errors) > 0 {
-		return GetAllRolesRpl_DataMultiError(errors)
+		return GetAllDomainsRpl_DataMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetAllRolesRpl_DataMultiError is an error wrapping multiple validation
-// errors returned by GetAllRolesRpl_Data.ValidateAll() if the designated
+// GetAllDomainsRpl_DataMultiError is an error wrapping multiple validation
+// errors returned by GetAllDomainsRpl_Data.ValidateAll() if the designated
 // constraints aren't met.
-type GetAllRolesRpl_DataMultiError []error
+type GetAllDomainsRpl_DataMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetAllRolesRpl_DataMultiError) Error() string {
+func (m GetAllDomainsRpl_DataMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -2226,11 +2379,11 @@ func (m GetAllRolesRpl_DataMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetAllRolesRpl_DataMultiError) AllErrors() []error { return m }
+func (m GetAllDomainsRpl_DataMultiError) AllErrors() []error { return m }
 
-// GetAllRolesRpl_DataValidationError is the validation error returned by
-// GetAllRolesRpl_Data.Validate if the designated constraints aren't met.
-type GetAllRolesRpl_DataValidationError struct {
+// GetAllDomainsRpl_DataValidationError is the validation error returned by
+// GetAllDomainsRpl_Data.Validate if the designated constraints aren't met.
+type GetAllDomainsRpl_DataValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2238,24 +2391,24 @@ type GetAllRolesRpl_DataValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetAllRolesRpl_DataValidationError) Field() string { return e.field }
+func (e GetAllDomainsRpl_DataValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetAllRolesRpl_DataValidationError) Reason() string { return e.reason }
+func (e GetAllDomainsRpl_DataValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetAllRolesRpl_DataValidationError) Cause() error { return e.cause }
+func (e GetAllDomainsRpl_DataValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetAllRolesRpl_DataValidationError) Key() bool { return e.key }
+func (e GetAllDomainsRpl_DataValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetAllRolesRpl_DataValidationError) ErrorName() string {
-	return "GetAllRolesRpl_DataValidationError"
+func (e GetAllDomainsRpl_DataValidationError) ErrorName() string {
+	return "GetAllDomainsRpl_DataValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e GetAllRolesRpl_DataValidationError) Error() string {
+func (e GetAllDomainsRpl_DataValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2267,14 +2420,14 @@ func (e GetAllRolesRpl_DataValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetAllRolesRpl_Data.%s: %s%s",
+		"invalid %sGetAllDomainsRpl_Data.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetAllRolesRpl_DataValidationError{}
+var _ error = GetAllDomainsRpl_DataValidationError{}
 
 var _ interface {
 	Field() string
@@ -2282,46 +2435,50 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetAllRolesRpl_DataValidationError{}
+} = GetAllDomainsRpl_DataValidationError{}
 
-// Validate checks the field values on GetDomainSubsForRoleRpl_Data with the
-// rules defined in the proto definition for this message. If any rules are
+// Validate checks the field values on GetDomainRolesRpl_Role with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *GetDomainSubsForRoleRpl_Data) Validate() error {
+func (m *GetDomainRolesRpl_Role) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetDomainSubsForRoleRpl_Data with the
-// rules defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on GetDomainRolesRpl_Role with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// GetDomainSubsForRoleRpl_DataMultiError, or nil if none found.
-func (m *GetDomainSubsForRoleRpl_Data) ValidateAll() error {
+// GetDomainRolesRpl_RoleMultiError, or nil if none found.
+func (m *GetDomainRolesRpl_Role) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetDomainSubsForRoleRpl_Data) validate(all bool) error {
+func (m *GetDomainRolesRpl_Role) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	// no validation rules for Sub
+	// no validation rules for Id
+
+	// no validation rules for Name
+
+	// no validation rules for Domain
 
 	if len(errors) > 0 {
-		return GetDomainSubsForRoleRpl_DataMultiError(errors)
+		return GetDomainRolesRpl_RoleMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetDomainSubsForRoleRpl_DataMultiError is an error wrapping multiple
-// validation errors returned by GetDomainSubsForRoleRpl_Data.ValidateAll() if
-// the designated constraints aren't met.
-type GetDomainSubsForRoleRpl_DataMultiError []error
+// GetDomainRolesRpl_RoleMultiError is an error wrapping multiple validation
+// errors returned by GetDomainRolesRpl_Role.ValidateAll() if the designated
+// constraints aren't met.
+type GetDomainRolesRpl_RoleMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetDomainSubsForRoleRpl_DataMultiError) Error() string {
+func (m GetDomainRolesRpl_RoleMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -2330,12 +2487,11 @@ func (m GetDomainSubsForRoleRpl_DataMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetDomainSubsForRoleRpl_DataMultiError) AllErrors() []error { return m }
+func (m GetDomainRolesRpl_RoleMultiError) AllErrors() []error { return m }
 
-// GetDomainSubsForRoleRpl_DataValidationError is the validation error returned
-// by GetDomainSubsForRoleRpl_Data.Validate if the designated constraints
-// aren't met.
-type GetDomainSubsForRoleRpl_DataValidationError struct {
+// GetDomainRolesRpl_RoleValidationError is the validation error returned by
+// GetDomainRolesRpl_Role.Validate if the designated constraints aren't met.
+type GetDomainRolesRpl_RoleValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2343,24 +2499,24 @@ type GetDomainSubsForRoleRpl_DataValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetDomainSubsForRoleRpl_DataValidationError) Field() string { return e.field }
+func (e GetDomainRolesRpl_RoleValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetDomainSubsForRoleRpl_DataValidationError) Reason() string { return e.reason }
+func (e GetDomainRolesRpl_RoleValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetDomainSubsForRoleRpl_DataValidationError) Cause() error { return e.cause }
+func (e GetDomainRolesRpl_RoleValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetDomainSubsForRoleRpl_DataValidationError) Key() bool { return e.key }
+func (e GetDomainRolesRpl_RoleValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetDomainSubsForRoleRpl_DataValidationError) ErrorName() string {
-	return "GetDomainSubsForRoleRpl_DataValidationError"
+func (e GetDomainRolesRpl_RoleValidationError) ErrorName() string {
+	return "GetDomainRolesRpl_RoleValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e GetDomainSubsForRoleRpl_DataValidationError) Error() string {
+func (e GetDomainRolesRpl_RoleValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2372,14 +2528,14 @@ func (e GetDomainSubsForRoleRpl_DataValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetDomainSubsForRoleRpl_Data.%s: %s%s",
+		"invalid %sGetDomainRolesRpl_Role.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetDomainSubsForRoleRpl_DataValidationError{}
+var _ error = GetDomainRolesRpl_RoleValidationError{}
 
 var _ interface {
 	Field() string
@@ -2387,4 +2543,249 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetDomainSubsForRoleRpl_DataValidationError{}
+} = GetDomainRolesRpl_RoleValidationError{}
+
+// Validate checks the field values on GetDomainRolesRpl_Data with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetDomainRolesRpl_Data) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetDomainRolesRpl_Data with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetDomainRolesRpl_DataMultiError, or nil if none found.
+func (m *GetDomainRolesRpl_Data) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetDomainRolesRpl_Data) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	for idx, item := range m.GetRoles() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetDomainRolesRpl_DataValidationError{
+						field:  fmt.Sprintf("Roles[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetDomainRolesRpl_DataValidationError{
+						field:  fmt.Sprintf("Roles[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetDomainRolesRpl_DataValidationError{
+					field:  fmt.Sprintf("Roles[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for Total
+
+	if len(errors) > 0 {
+		return GetDomainRolesRpl_DataMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetDomainRolesRpl_DataMultiError is an error wrapping multiple validation
+// errors returned by GetDomainRolesRpl_Data.ValidateAll() if the designated
+// constraints aren't met.
+type GetDomainRolesRpl_DataMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetDomainRolesRpl_DataMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetDomainRolesRpl_DataMultiError) AllErrors() []error { return m }
+
+// GetDomainRolesRpl_DataValidationError is the validation error returned by
+// GetDomainRolesRpl_Data.Validate if the designated constraints aren't met.
+type GetDomainRolesRpl_DataValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetDomainRolesRpl_DataValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetDomainRolesRpl_DataValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetDomainRolesRpl_DataValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetDomainRolesRpl_DataValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetDomainRolesRpl_DataValidationError) ErrorName() string {
+	return "GetDomainRolesRpl_DataValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetDomainRolesRpl_DataValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetDomainRolesRpl_Data.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetDomainRolesRpl_DataValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetDomainRolesRpl_DataValidationError{}
+
+// Validate checks the field values on GetSubsInDomainRoleRpl_Data with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetSubsInDomainRoleRpl_Data) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetSubsInDomainRoleRpl_Data with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetSubsInDomainRoleRpl_DataMultiError, or nil if none found.
+func (m *GetSubsInDomainRoleRpl_Data) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetSubsInDomainRoleRpl_Data) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Id
+
+	// no validation rules for Name
+
+	if len(errors) > 0 {
+		return GetSubsInDomainRoleRpl_DataMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetSubsInDomainRoleRpl_DataMultiError is an error wrapping multiple
+// validation errors returned by GetSubsInDomainRoleRpl_Data.ValidateAll() if
+// the designated constraints aren't met.
+type GetSubsInDomainRoleRpl_DataMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetSubsInDomainRoleRpl_DataMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetSubsInDomainRoleRpl_DataMultiError) AllErrors() []error { return m }
+
+// GetSubsInDomainRoleRpl_DataValidationError is the validation error returned
+// by GetSubsInDomainRoleRpl_Data.Validate if the designated constraints
+// aren't met.
+type GetSubsInDomainRoleRpl_DataValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetSubsInDomainRoleRpl_DataValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetSubsInDomainRoleRpl_DataValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetSubsInDomainRoleRpl_DataValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetSubsInDomainRoleRpl_DataValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetSubsInDomainRoleRpl_DataValidationError) ErrorName() string {
+	return "GetSubsInDomainRoleRpl_DataValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetSubsInDomainRoleRpl_DataValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetSubsInDomainRoleRpl_Data.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetSubsInDomainRoleRpl_DataValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetSubsInDomainRoleRpl_DataValidationError{}
